@@ -4,6 +4,18 @@ import * as route from './route';
 
 const entryElem = document.getElementById( 'main-entrypoint' );
 
+// React
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+// Vue
+import {
+    createApp as createVueApp,
+    h as createVueElement,
+    Fragment as VueFragment
+} from 'vue';
+
+
 // about
 route.register( {
     id: 'about',
@@ -33,22 +45,32 @@ route.register( {
     path: '/react',
     parent: undefined,
     enter: () => {
-        entryElem.innerHTML = 'React APP';
+        const h: any = React.createElement;
+        h.createElement = React.createElement;
+        h.Fragment = React.Fragment;
+
+        ReactDOM.render( h( () => <div>Hello React</div> ), entryElem );
     },
     leave: () => {
-        entryElem.innerHTML = '';
+        ReactDOM.unmountComponentAtNode( entryElem );
     }
 } );
 
 // vue
+let app = null;
 route.register( {
     id: 'vue',
     path: '/vue',
     parent: undefined,
     enter: () => {
-        entryElem.innerHTML = 'Vue APP';
+        const h: any = createVueElement;
+        h.createElement = createVueElement;
+        h.Fragment = VueFragment;
+
+        app = createVueApp( () => <div>Hello Vue</div> );
+        app.mount( entryElem );
     },
     leave: () => {
-        entryElem.innerHTML = '';
+        app.unmount( entryElem );
     }
 } );

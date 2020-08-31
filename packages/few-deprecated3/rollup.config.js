@@ -66,7 +66,7 @@ const production = !process.env.ROLLUP_WATCH;
 const extensions = [ '.js', '.jsx', '.ts', '.tsx' ];
 
 export default {
-    input: 'src/main.ts',
+    input: 'src/main.tsx',
     output: {
         file: 'public/bundle.js',
         format: 'iife', // immediately-invoked function expression — suitable for <script> tags
@@ -101,7 +101,7 @@ export default {
                 [ '@babel/preset-react', {
                     // pragma: 'this.$createElement'
                     // align with vue
-                    pragma: 'h',
+                    pragma: 'h.createElement',
                     pragmaFrag: 'h.Fragment',
                     // has side effect in non-react practice like vue
                     // development: !production
