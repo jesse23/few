@@ -1,0 +1,40 @@
+{
+    "compilerOptions": {
+        // Target latest version of ECMAScript.
+        // https://stackoverflow.com/questions/37709755/typescript-cannot-find-local-es6-module-error-ts2307-cannot-find-module
+        // https://github.com/vuejs/vue-next/blob/master/tsconfig.json
+        "target": "esnext",
+        "module": "esnext",
+        "moduleResolution": "node",
+        // Process & infer types from .js files.
+        "allowJs": true,
+        // Don't emit; allow Babel to transform files.
+        // "noEmit": true,
+        // Enable strictest settings like strictNullChecks & noImplicitAny.
+        // "strict": true,
+        // Disallow features that require cross-file information for emit.
+        // "isolatedModules": true,
+        // Import non-ES modules as default imports.
+        "esModuleInterop": true,
+        // https://github.com/rollup/plugins/issues/287
+        // "outDir": "public",
+        // "module": "CommonJS",
+        "skipLibCheck": true,
+        "jsx": "preserve",
+        "jsxFactory": "h",
+        "noImplicitAny": true,
+        // below is not required when use babel/buble
+        //"sourceMap": true,
+        // "inlineSourceMap": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+
+    },
+    "include": [
+        "src/**/*",
+        "test/**/*"
+    ],
+    "exclude": [ "node_modules" ]
+}

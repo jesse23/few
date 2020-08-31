@@ -1,0 +1,17 @@
+{
+    "files.exclude": {
+        ".git": true,
+        "node_modules": false
+    },
+    "search.exclude": {
+        ".vscode": true,
+        "node_modules": true,
+        "out": true
+    },
+    "css.validate": true,
+    "scss.validate": true,
+    "eslint.enable": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    }
+}
