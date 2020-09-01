@@ -1,20 +1,20 @@
 /* eslint-env jest */
 
 // available frame work
-import {
+import type {
     App,
     CreateAppFunction
 } from '@/types';
 
-import React from '@/reactPolyfill';
-import Vue3 from '@/vue3Polyfill';
+import { createApp as createReactApp } from '@/reactPolyfill';
+import { createApp as createVue3App } from '@/vue3Polyfill';
 
 import { act } from 'react-dom/test-utils';
 
 
-export const getSupportedFrameworks = (): { [key: string]: any } => ( {
-    react: React,
-    vue3: Vue3
+export const getSupportedFrameworks = (): { [key: string]: CreateAppFunction } => ( {
+    react: createReactApp,
+    vue3: createVue3App
 } );
 
 let _mockTimerEnabled = false;
@@ -64,6 +64,7 @@ export const setupComponentTest = ( skipMockTimer?: boolean ): {
  * Note: act is react-dom/jest specific but harmless to other framework
  *
  * @param elapsed elapsed time
+ * @param mockReact if true use act API to mock react async call
  * @returns promise
  */
 export const wait = ( elapsed = 0, mockReact = true ): Promise<void> => {

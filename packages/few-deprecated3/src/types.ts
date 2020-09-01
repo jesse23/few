@@ -4,4 +4,8 @@ export interface App {
     unmount: ( elem: HTMLElement ) => App;
 }
 
-export type CreateAppFunction = ( componentDef: { (): JSX.Element } ) => App;
+export interface Props {
+    [key: string]: any;
+}
+
+export type CreateAppFunction = ( componentDef: { ( prop: Props ): JSX.Element } ) => App;

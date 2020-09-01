@@ -1,7 +1,7 @@
 /* eslint-env jest */
+import type { CreateAppFunction } from '@/types';
 
 import {
-    wait,
     setupComponentTest,
     getSupportedFrameworks
 } from './utils';
@@ -12,7 +12,7 @@ import Component from './components/FunctionExample';
 // const createApp = getSupportedFrameworks().react;
 
 // debug: comment this line
-const _testSuite = ( name: string, h: any ): void =>
+const _testSuite = ( name: string, createApp: CreateAppFunction ): void =>
     // debug: enable this line
     // describe( 'debug specific suite', () => {
     describe( `${Component.name} test on ${name}`, () => {
@@ -22,8 +22,7 @@ const _testSuite = ( name: string, h: any ): void =>
         // it( 'debug specific test', async() => {
         it( `${Component.name} test on ${name}`, async() => {
             const containerElem = fixture.container;
-            setH( h );
-            fixture.app = h.createApp( Component ).mount( containerElem );
+            fixture.app = createApp( Component ).mount( containerElem );
             expect( containerElem.innerHTML ).toEqual( [
                 '<div>Hello dummy</div>'
             ].join( '' ) );
@@ -31,4 +30,4 @@ const _testSuite = ( name: string, h: any ): void =>
     } );
 
 // debug: comment this line
-Object.entries( getSupportedFrameworks() ).forEach( ( [ name, dep ] ) => _testSuite( name, dep ) );
+Object.entries( getSupportedFrameworks() ).forEach( ( [ name, createApp ] ) => _testSuite( name, createApp ) );
