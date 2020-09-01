@@ -170,7 +170,7 @@ module.exports = {
         'valid-jsdoc': [ 'warn', { 'requireReturn': false, 'requireReturnType': false, 'requireParamType': false, 'requireParamDescription': true, 'requireReturnDescription': true } ],
         'valid-typeof': 2,
         'wrap-regex': 0,
-        "react/display-name": [ 'warn', { "ignoreTranspilerName": true } ],
+        "react/display-name": [ 0, { "ignoreTranspilerName": true } ],
         "react/react-in-jsx-scope": "off",
         "@typescript-eslint/no-explicit-any": [ "warn", {
             "ignoreRestArgs": true

@@ -1,25 +1,18 @@
 /* eslint-env es6 */
 
+import type { App } from '@/types';
 import * as route from './route';
 import { setH, h } from './vDom';
 
 const entryElem = document.getElementById( 'main-entrypoint' );
-
-// React
-import ReactDOM from 'react-dom';
-
-// Vue
-import { createApp as createVueApp } from 'vue';
 
 // Polyfill
 import React from './reactPolyfill';
 import Vue3 from './vue3Polyfill';
 
 import {
-    FunctionComponent,
-    ObjectComponent,
-    ObjectComponent2
-} from './ComponentExample';
+    FunctionComponent
+} from '../test/components/FunctionExample';
 
 
 // about
@@ -45,6 +38,8 @@ route.register( {
     }
 } );
 
+let app = null as App;
+
 // react
 route.register( {
     id: 'react',
@@ -52,23 +47,21 @@ route.register( {
     parent: undefined,
     enter: () => {
         setH( React );
-        ReactDOM.render( h( ObjectComponent2.render, { name: 'React' } ), entryElem );
+        app = React.createApp( () => h( FunctionComponent, { name: 'react' } ) ).mount( entryElem );
     },
     leave: () => {
-        ReactDOM.unmountComponentAtNode( entryElem );
+        app.unmount( entryElem );
     }
 } );
 
 // vue
-let app = null;
 route.register( {
     id: 'vue',
     path: '/vue3',
     parent: undefined,
     enter: () => {
         setH( Vue3 );
-        app = createVueApp( ObjectComponent2.render, { name: 'Vue3' } );
-        app.mount( entryElem );
+        app = Vue3.createApp( () => h( FunctionComponent, { name: 'vue3' } ) ).mount( entryElem );
     },
     leave: () => {
         app.unmount( entryElem );

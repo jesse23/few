@@ -66,7 +66,7 @@ const production = !process.env.ROLLUP_WATCH;
 const extensions = [ '.js', '.jsx', '.ts', '.tsx' ];
 
 export default {
-    input: 'src/main.tsx',
+    input: 'src/main.ts',
     output: {
         file: 'public/bundle.js',
         format: 'iife', // immediately-invoked function expression — suitable for <script> tags
