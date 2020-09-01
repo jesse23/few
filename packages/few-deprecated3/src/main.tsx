@@ -1,19 +1,25 @@
 /* eslint-env es6 */
 
 import * as route from './route';
+import { setH, h } from './vDom';
 
 const entryElem = document.getElementById( 'main-entrypoint' );
 
 // React
-import React from 'react';
 import ReactDOM from 'react-dom';
 
 // Vue
+import { createApp as createVueApp } from 'vue';
+
+// Polyfill
+import React from './reactPolyfill';
+import Vue3 from './vue3Polyfill';
+
 import {
-    createApp as createVueApp,
-    h as createVueElement,
-    Fragment as VueFragment
-} from 'vue';
+    FunctionComponent,
+    ObjectComponent,
+    ObjectComponent2
+} from './ComponentExample';
 
 
 // about
@@ -45,11 +51,8 @@ route.register( {
     path: '/react',
     parent: undefined,
     enter: () => {
-        const h: any = React.createElement;
-        h.createElement = React.createElement;
-        h.Fragment = React.Fragment;
-
-        ReactDOM.render( h( () => <div>Hello React</div> ), entryElem );
+        setH( React );
+        ReactDOM.render( h( ObjectComponent2.render, { name: 'React' } ), entryElem );
     },
     leave: () => {
         ReactDOM.unmountComponentAtNode( entryElem );
@@ -60,14 +63,11 @@ route.register( {
 let app = null;
 route.register( {
     id: 'vue',
-    path: '/vue',
+    path: '/vue3',
     parent: undefined,
     enter: () => {
-        const h: any = createVueElement;
-        h.createElement = createVueElement;
-        h.Fragment = VueFragment;
-
-        app = createVueApp( () => <div>Hello Vue</div> );
+        setH( Vue3 );
+        app = createVueApp( ObjectComponent2.render, { name: 'Vue3' } );
         app.mount( entryElem );
     },
     leave: () => {
