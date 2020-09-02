@@ -1,15 +1,7 @@
+import type { VDom, H } from '@/types';
 
+export const h = ( ( ...args ) => h.createElement( ...args ) ) as H;
 
-type ArgArray<T=any> = [T, ...T[]];
-
-// eslint-disable-next-line react/display-name
-export const h = ( ...args: ArgArray ): JSX.Element => h.createElement( ...args );
-h.createElement = undefined as { ( ...args: any[] ): JSX.Element };
-/*
-h.type = undefined as string;
-h.Fragment = undefined as Function;
-*/
-
-export const setH = ( deps: any ): void => {
+export const setH = ( deps: VDom ): void => {
     Object.assign( h, deps );
 };

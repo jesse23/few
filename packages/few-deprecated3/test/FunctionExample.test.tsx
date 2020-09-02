@@ -5,7 +5,6 @@ import {
     setupComponentTest,
     getSupportedFrameworks
 } from './utils';
-import { setH } from '@/vDom';
 import Component from './components/FunctionExample';
 
 // debug: enable this line

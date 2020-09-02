@@ -9,3 +9,14 @@ export interface Props {
 }
 
 export type CreateAppFunction = ( componentDef: { ( prop: Props ): JSX.Element } ) => App;
+
+///////////////
+
+type CreateElementFn = ( ...args: any[] ) => JSX.Element;
+export interface VDom {
+    type: string;
+    createElement: CreateElementFn;
+    Fragment: Function;
+}
+
+export type H = CreateElementFn & VDom;
