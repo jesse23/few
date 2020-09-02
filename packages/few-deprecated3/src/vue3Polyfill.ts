@@ -1,13 +1,11 @@
 import type {
     App,
-    Props,
-    Component,
+    VDom,
     CreateAppFunction
 } from '@/types';
 
 import type {
-    VNodeArrayChildren,
-    VNode
+    VNodeArrayChildren
 } from 'vue';
 
 import {
@@ -20,10 +18,10 @@ import { setH } from '@/vDom';
 
 import { isComponent } from '@/utils';
 
-const h = {
+const h: VDom = {
     type: 'vue',
     Fragment,
-    createElement: ( type: string | Component<Props>, props?: Props | null, ...children: VNodeArrayChildren ): VNode => {
+    createElement: ( type, props?, ...children ) => {
         // align on input behavior with react
         if ( type === 'input' && props.onChange ) {
             props.onInput = props.onChange;
@@ -32,7 +30,7 @@ const h = {
 
         // [Vue warn]: Non-function value encountered for default slot. Prefer function slots for better performance.
         // set children to null if children === []
-        children = children.length > 0 ? children : null;
+        let childrenN = ( children.length > 0 ? children : null ) as VNodeArrayChildren;
 
         if ( isComponent( type ) ) {
             if ( !type._compiled || !type._compiled.vue ) {
@@ -41,29 +39,29 @@ const h = {
                     vue: h.createComponent( type )
                 };
             }
-            children = children && children.length === 1 ? children[0] as VNodeArrayChildren : children;
+            childrenN = childrenN && childrenN.length === 1 ? childrenN[0] as VNodeArrayChildren : childrenN;
             return createElement( type._compiled.vue, {
                 ...props,
-                children
+                childrenN
             } );
         } else if ( !type ) {
-            return createElement( Fragment, props, children );
+            return createElement( Fragment, props, childrenN );
         }
-        return createElement( type, props, children );
+        return createElement( type, props, childrenN );
     },
-    createComponent: ( component: Component<Props> ): { ( props: Props ): JSX.Element } => {
+    createComponent: component => {
         return component.render;
     }
 };
 
 /**
  * Create app for specific component def
- * @param componentDef component definition
+ * @param component component definition
  * @returns web app object
  */
-export const createApp: CreateAppFunction = componentDef => {
+export const createApp: CreateAppFunction = component => {
     setH( h );
-    const vueApp = createVueApp( isComponent( componentDef ) ? h.createComponent( componentDef ) : componentDef );
+    const vueApp = createVueApp( isComponent( component ) ? h.createComponent( component ) : component );
     const app: App = {
         mount: ( elem: HTMLElement ) => ( ( vueApp.mount( elem ), app ) ),
         unmount: ( elem: HTMLElement ) => ( ( vueApp.unmount( elem ), app ) )

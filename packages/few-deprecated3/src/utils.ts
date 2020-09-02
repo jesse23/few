@@ -1,23 +1,32 @@
 import type {
-    Props,
     ComponentDef,
     Component
 } from '@/types';
-
-// magical type script overload.....
-export function defineComponent<T extends Props>(
-    componentDef: ComponentDef<T>
-): Component<T>
-
 
 /**
  * Wrapper function for JSX
  * @param componentDef componentDef
  * @returns componentDef
+ *
+ * Below are several different approach to achieve the functionality.
+ * NOTE: define a Fn type doesn't help to hide ComponentDef since we need the 'as' for return value.
+ * see https://stackoverflow.com/questions/41875350/how-to-create-a-generic-type-for-an-arrow-function-in-typescript
+ *
+ * - function approach
+ *   export function defineComponent<T>( componentDef: ComponentDef<T> ): Component<T> {
+ *       return componentDef as Component<T>;
+ *   }
+ *
+ * - function variable approach
+ *   export const defineComponent = function <T>( componentDef: ComponentDef<T> ): Component<T> {
+ *       return componentDef as Component<T>;
+ *   };
+ *
+ * - function type approach
+ *   type DefineComponentFn = <T>( componentDef: ComponentDef<T> ) => Component<T>;
+ *   export const defineComponent:DefineComponentFn = <T>( componentDef: ComponentDef<T> ) => ( componentDef as Component<T> );
  */
-export function defineComponent<T>( componentDef: T ): T {
-    return componentDef;
-}
+export const defineComponent = <T>( componentDef: ComponentDef<T> ): Component<T> => componentDef as Component<T>;
 
 /**
  * check if type is ComponentDef. use ComponentDef.init() to detect
@@ -28,8 +37,8 @@ export const isComponent = ( type: string | Component<unknown> ): type is Compon
     const component = type as Component<unknown>;
     return component &&
         typeof component === 'object' &&
-        // typeof componeDef.init === 'function' ||
+        // typeof componentDef.init === 'function' ||
         typeof component.render === 'function'
-        // typeof componeDef.mount === 'function'
+        // typeof componentDef.mount === 'function'
     ;
 };

@@ -8,8 +8,7 @@ import ReactDOM from 'react-dom';
 
 import type {
     App,
-    Component,
-    Props,
+    VDom,
     CreateAppFunction
 } from '@/types';
 
@@ -17,10 +16,10 @@ import { setH } from '@/vDom';
 
 import { isComponent } from '@/utils';
 
-const h = {
+const h: VDom = {
     type: 'react',
     Fragment,
-    createElement: ( type: string | Component<Props>, props?: Props | null, ...children: React.ReactNode[] ): JSX.Element => {
+    createElement: ( type, props?, ...children ) => {
         if ( !type ) {
             return createElement( Fragment, props, ...children );
         } else if ( isComponent( type ) ) {
@@ -34,16 +33,16 @@ const h = {
         }
         return createElement( type, props, ...children );
     },
-    createComponent: ( component: Component<Props> ): { ( props: Props ): JSX.Element } => {
+    createComponent: component => {
         return component.render;
     }
 };
 
-export const createApp: CreateAppFunction = componentDef => {
+export const createApp: CreateAppFunction = component => {
     setH( h );
-    const component = h.createElement( componentDef );
+    const vNode = h.createElement( component );
     const app: App = {
-        mount: ( elem: HTMLElement ) => ( ( ReactDOM.render( component, elem ), app ) ),
+        mount: ( elem: HTMLElement ) => ( ( ReactDOM.render( vNode, elem ), app ) ),
         unmount: ( elem: HTMLElement ) => ( ( ReactDOM.unmountComponentAtNode( elem ), app ) )
     };
     return app;
