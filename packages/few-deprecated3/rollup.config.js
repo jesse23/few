@@ -108,8 +108,7 @@ export default {
                     useBuiltIns: true
                 } ],
                 // https://github.com/babel/babel/issues/11851#issuecomment-661834064
-                // it will cause warning so not use it for now
-                [ '@babel/preset-typescript' /*, { onlyRemoveTypeImports: true }*/ ]
+                [ '@babel/preset-typescript', { onlyRemoveTypeImports: true } ]
             ],
             babelHelpers: 'bundled',
             extensions
