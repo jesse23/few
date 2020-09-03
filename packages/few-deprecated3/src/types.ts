@@ -33,13 +33,23 @@ export interface RenderFunction<T> {
     displayName?: string;
 }
 
-export interface ComponentDef<T, M> {
+export interface StatelessComponentDef<T> {
     name: string;
-    init?: ( props: T ) => M;
-    render?: RenderFunction<M&Props>;
+    render?: RenderFunction<T>;
     _compiled?: {
-        [platform: string]: ( props: T ) => JSX.Element;
+        [platform: string]: ( props: Props ) => JSX.Element;
     };
 }
 
-export type Component<T, M=Props> = ComponentDef<T, M> & RenderFunction<T>;
+export interface StatefulComponentDef<T, M> extends StatelessComponentDef<M> {
+    init: ( props: T ) => M;
+    render?: RenderFunction<T&M>;
+}
+
+// export type Component<T, M=Props> = ComponentDef<T, M> & RenderFunction<T>;
+export type Component<T, M=Props> = ( StatefulComponentDef<T, M> | StatelessComponentDef<T> ) & RenderFunction<T>;
+
+export interface DefineComponentFn {
+    <T extends Props, M=Props>( componentDef: StatefulComponentDef<T, M> ): Component<T, M>;
+    <T extends Props>( componentDef: StatelessComponentDef<T> ): Component<T>;
+}

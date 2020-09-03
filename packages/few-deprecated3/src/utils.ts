@@ -1,6 +1,6 @@
 import type {
-    ComponentDef,
-    Component
+    Component,
+    DefineComponentFn
 } from '@/types';
 
 /**
@@ -9,7 +9,6 @@ import type {
  * @returns componentDef
  *
  * Below are several different approach to achieve the functionality.
- * NOTE: define a Fn type doesn't help to hide ComponentDef since we need the 'as' for return value.
  * see https://stackoverflow.com/questions/41875350/how-to-create-a-generic-type-for-an-arrow-function-in-typescript
  *
  * - function approach
@@ -25,16 +24,18 @@ import type {
  * - function type approach
  *   type DefineComponentFn = <T>( componentDef: ComponentDef<T> ) => Component<T>;
  *   export const defineComponent:DefineComponentFn = <T>( componentDef: ComponentDef<T> ) => ( componentDef as Component<T> );
+ *   // or
+ *   export const defineComponent:DefineComponentFn = ( componentDef: never ) => componentDef;
  */
-export const defineComponent = <T, M>( componentDef: ComponentDef<T, M> ): Component<T, M> => componentDef as Component<T, M>;
+export const defineComponent: DefineComponentFn = ( componentDef: never ) => componentDef;
 
 /**
  * check if type is ComponentDef. use ComponentDef.init() to detect
  * @param type component type
  * @returns true if type is component def.
  */
-export const isComponent = ( type: string | Component<unknown> ): type is Component<unknown> => {
-    const component = type as Component<unknown>;
+export const isComponent = ( type: string | Component<never> ): type is Component<never> => {
+    const component = type as Component<never>;
     return component &&
         typeof component === 'object' &&
         // typeof componentDef.init === 'function' ||
