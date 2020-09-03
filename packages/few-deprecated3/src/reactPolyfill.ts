@@ -34,6 +34,7 @@ const h: VDom = {
         return createElement( type, props, ...children );
     },
     createComponent: component => {
+        component.render.displayName = component.name;
         return component.render;
     }
 };

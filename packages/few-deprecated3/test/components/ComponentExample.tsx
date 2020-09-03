@@ -7,6 +7,7 @@ import { defineComponent } from '@/utils';
 // https://stackoverflow.com/questions/52992932/component-definition-is-missing-display-name-react-display-name
 // method below is not for assign but mainly for skip the display-name check :)
 const ObjectComponent = defineComponent( {
+    name: 'ObjectComponent',
     render: ( { name }: { name: string } ): JSX.Element => <div>Hello { name || 'dummy' }</div>
 } );
 

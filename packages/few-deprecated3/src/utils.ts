@@ -26,7 +26,7 @@ import type {
  *   type DefineComponentFn = <T>( componentDef: ComponentDef<T> ) => Component<T>;
  *   export const defineComponent:DefineComponentFn = <T>( componentDef: ComponentDef<T> ) => ( componentDef as Component<T> );
  */
-export const defineComponent = <T>( componentDef: ComponentDef<T> ): Component<T> => componentDef as Component<T>;
+export const defineComponent = <T, M>( componentDef: ComponentDef<T, M> ): Component<T, M> => componentDef as Component<T, M>;
 
 /**
  * check if type is ComponentDef. use ComponentDef.init() to detect

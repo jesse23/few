@@ -28,13 +28,18 @@ export interface Props {
     [key: string]: any;
 }
 
-export type RenderFunction<T> = ( props: T ) => JSX.Element;
+export interface RenderFunction<T> {
+    ( props: T ): JSX.Element;
+    displayName?: string;
+}
 
-export interface ComponentDef<T> {
-    render?: RenderFunction<T>;
+export interface ComponentDef<T, M> {
+    name: string;
+    init?: ( props: T ) => M;
+    render?: RenderFunction<M&Props>;
     _compiled?: {
-        [platform: string]: ( props: Props ) => JSX.Element;
+        [platform: string]: ( props: T ) => JSX.Element;
     };
 }
 
-export type Component<T> = ComponentDef<T> & RenderFunction<T>;
+export type Component<T, M=Props> = ComponentDef<T, M> & RenderFunction<T>;
