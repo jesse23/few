@@ -53,3 +53,9 @@ export interface DefineComponentFn {
     <T extends Props, M=Props>( componentDef: StatefulComponentDef<T, M> ): Component<T, M>;
     <T extends Props>( componentDef: StatelessComponentDef<T> ): Component<T>;
 }
+
+// dispatch input
+export interface DispatchInput {
+    path: string;
+    value: unknown;
+}

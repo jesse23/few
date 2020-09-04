@@ -43,3 +43,13 @@ export const isComponent = ( type: string | Component<never> ): type is Componen
         // typeof componentDef.mount === 'function'
     ;
 };
+
+/**
+ * check if type is ComponentDef. use ComponentDef.init() to detect
+ * @param value component type
+ * @returns true if type is promise.
+ */
+export const isPromise = ( value: unknown ): value is Promise<unknown> => {
+    const val = value as Promise<unknown>;
+    return val && val.then && typeof val.then === 'function';
+};

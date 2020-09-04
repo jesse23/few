@@ -5,7 +5,7 @@ import {
     setupComponentTest,
     getSupportedFrameworks
 } from './utils';
-import Component from './components/FunctionExample';
+import Example from '@/examples/StatefulComponentExample';
 
 // debug: enable this line
 // const createApp = getSupportedFrameworks().react;
@@ -14,16 +14,16 @@ import Component from './components/FunctionExample';
 const _testSuite = ( name: string, createApp: CreateAppFunction ): void =>
     // debug: enable this line
     // describe( 'debug specific suite', () => {
-    describe( `${Component.name} test on ${name}`, () => {
+    describe( `${Example.name} test on ${name}`, () => {
         const fixture = setupComponentTest( true );
 
         // debug: enable this line
         // it( 'debug specific test', async() => {
-        it( `${Component.name} test on ${name}`, async() => {
+        it( `${Example.name} test on ${name}`, async() => {
             const containerElem = fixture.container;
-            fixture.app = createApp( Component ).mount( containerElem );
+            fixture.app = createApp( Example ).mount( containerElem );
             expect( containerElem.innerHTML ).toEqual( [
-                '<div>Hello dummy</div>'
+                '<div>x: 3, y: 5</div>'
             ].join( '' ) );
         } );
     } );

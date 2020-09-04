@@ -1,22 +1,35 @@
 import type {
     App,
     VDom,
-    CreateAppFunction
+    Props,
+    DispatchInput,
+    RenderFunction,
+    CreateAppFunction,
+    StatefulComponentDef
 } from '@/types';
 
 import type {
-    VNodeArrayChildren
+    Component as VueComponent,
+    VNodeArrayChildren,
+    SetupContext
 } from 'vue';
 
 import {
     Fragment,
+    reactive,
+    onMounted,
     h as createElement,
     createApp as createVueApp
 } from 'vue';
 
+import lodashSet from 'lodash/set';
+
 import { setH } from '@/vDom';
 
-import { isComponent } from '@/utils';
+import { isComponent, isPromise } from '@/utils';
+
+// VueComponent wrapper
+export const defineComponent: { ( componentDef: VueComponent ): RenderFunction<Props> } = ( componentDef: never ) => componentDef;
 
 const h: VDom = {
     type: 'vue',
@@ -49,10 +62,66 @@ const h: VDom = {
         }
         return createElement( type, props, childrenN );
     },
-    createComponent: component => {
-        component.render.displayName = component.name;
-        return component.render;
-    }
+    createComponent: component => defineComponent( {
+        name: 'Hi',
+        inheritAttrs: false,
+        // in Vue render is deined as loose as 'Function'
+        // in typeScript by default JSX returns JSX.Element
+        // so here even for Vue we use JSX.Element
+        /*
+        render: ( component: Component & Vue.ComponentOptions ): JSX.Element => {
+            return componentDef.view( polyfill.createElement )( component );
+        },
+        */
+        /*
+        when u declare 'props', then it can be accessed as input of setup function. Otherwise it is attrs
+        props: {
+            firstName: String
+        },
+        */
+        setup: ( _: never, context: SetupContext ): RenderFunction<Props> => {
+            const temp = component as StatefulComponentDef<Props, Props>;
+            const model = temp.init ? temp.init( context.attrs ) : {};
+
+            const componentInstance = {
+                model: reactive( isPromise( model ) ? {} : model ),
+                dispatch: ( { path, value }: DispatchInput ): void => {
+                    lodashSet( componentInstance.model, path, value );
+                },
+                /*
+                ref: ( ( path?: string ) => ( el: HTMLElement ): void => {
+                    component.ref[path || 'el'] = el;
+                } ) as Ref,
+                */
+                props: context.attrs
+            };
+
+            onMounted( () => {
+                if ( isPromise( model ) ) {
+                    Promise.resolve( model ).then( model => {
+                        Object.assign( componentInstance.model, model );
+                    } ).then( () => {
+                        // componentDef.mount && componentDef.mount( component );
+                    } );
+                } else {
+                    // componentDef.mount && componentDef.mount( component );
+                }
+
+                // for onmount/init
+                // updateWatchers( component );
+            } );
+
+            return (): JSX.Element => {
+                // component.children = context.slots.default && context.slots.default();
+                // component.children = context.attrs.children;
+                return component.render( {
+                    ...componentInstance.props,
+                    ...componentInstance.model,
+                    dispatch: componentInstance.dispatch
+                } );
+            };
+        }
+    } )
 };
 
 /**

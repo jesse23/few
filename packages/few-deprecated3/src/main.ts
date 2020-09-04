@@ -10,8 +10,7 @@ const entryElem = document.getElementById( 'main-entrypoint' );
 import { createApp as createReactApp } from '@/reactPolyfill';
 import { createApp as createVueApp } from '@/vue3Polyfill';
 
-import ComponentExample from '../test/components/ComponentExample';
-
+import Example from '@/examples/StatefulComponentExample';
 
 // about
 route.register( {
@@ -44,7 +43,7 @@ route.register( {
     path: '/react',
     parent: undefined,
     enter: () => {
-        app = createReactApp( () => h( ComponentExample, { name: 'react' } ) ).mount( entryElem );
+        app = createReactApp( () => h( Example ) ).mount( entryElem );
     },
     leave: () => {
         app.unmount( entryElem );
@@ -57,7 +56,7 @@ route.register( {
     path: '/vue3',
     parent: undefined,
     enter: () => {
-        app = createVueApp( () => h( ComponentExample, { name: 'vue3' } ) ).mount( entryElem );
+        app = createVueApp( () => h( Example ) ).mount( entryElem );
     },
     leave: () => {
         app.unmount( entryElem );

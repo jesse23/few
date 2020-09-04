@@ -1,20 +1,31 @@
 // React
 import {
+    useRef,
+    useState,
+    useEffect,
     Fragment,
     createElement
 } from 'react';
+
 import ReactDOM from 'react-dom';
 
+import lodashSet from 'lodash/set';
 
 import type {
     App,
     VDom,
-    CreateAppFunction
+    Props,
+    DispatchInput,
+    CreateAppFunction,
+    StatefulComponentDef
 } from '@/types';
 
 import { setH } from '@/vDom';
 
-import { isComponent } from '@/utils';
+import {
+    isComponent,
+    isPromise
+} from '@/utils';
 
 const h: VDom = {
     type: 'react',
@@ -34,8 +45,59 @@ const h: VDom = {
         return createElement( type, props, ...children );
     },
     createComponent: component => {
-        component.render.displayName = component.name;
-        return component.render;
+        const RenderFn = ( props: Props ): JSX.Element => {
+            const initPromise = useRef( null );
+
+            const [ vm, setState ] = useState( () => {
+                const temp = component as StatefulComponentDef<Props, Props>;
+                const model = temp.init ? temp.init( props ) : {};
+                if ( isPromise( model ) ) {
+                    initPromise.current = model;
+                    return {
+                        model: {}
+                    };
+                }
+                return {
+                    model
+                };
+            } );
+
+            const dispatch = ( { path, value }: DispatchInput ): void => {
+                lodashSet( vm.model, path, value );
+                setState( { ...vm } );
+            };
+
+            // async init
+            // https://stackoverflow.com/questions/49906437/how-to-cancel-a-fetch-on-componentwillunmount
+            useEffect( () => {
+                if ( initPromise.current ) {
+                    // all API be consistent
+                    Promise.resolve( initPromise.current ).then( model =>
+                        // do Object.assign for mutation
+                        setState( v => ( ( Object.assign( v.model, model ), { ...v } ) ) )
+                        // mount after async init
+                    ).then( () => {
+                        // componentDef.mount && componentDef.mount( component );
+                    } );
+                } else {
+                    // componentDef.mount && componentDef.mount( component );
+                }
+
+                return (): void => {
+                    // componentDef.unmount && componentDef.unmount( component );
+                };
+            }, [] );
+
+            return component.render( {
+                ...props,
+                ...vm.model,
+                dispatch
+            } );
+        };
+        RenderFn.displayName = component.name;
+        return RenderFn;
+        // component.render.displayName = component.name;
+        // return component.render;
     }
 };
 
