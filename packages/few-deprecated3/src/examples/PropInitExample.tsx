@@ -1,16 +1,15 @@
-import { defineComponent } from '../../src/utils';
+import { defineComponent } from '@/utils';
 
 const PositionComponent = defineComponent( {
     name: 'PositionComponent',
-    init: ( { props } ) => ( {
-        ...props
+    init: ( { x, y }: { x: number; y: number} ) => ( {
+        x, y
     } ),
-    view: ( { model } ): JSX.Element =>
-        <div>X: {model.x}, Y: {model.y}</div>
+    view: ( { x, y } ): JSX.Element =>
+        <div>X: {x}, Y: {y}</div>
 } );
 
 export default defineComponent( {
     name: 'PropInitExample',
-    view: (): JSX.Element =>
-        <PositionComponent x={3} y={4} />
+    view: (): JSX.Element => <PositionComponent x={3} y={4} />
 } );
