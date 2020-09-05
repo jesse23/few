@@ -1,4 +1,3 @@
-import { h } from '@/vDom';
 
 // use named function for Function.name
 export default Object.assign( function FunctionComponent( { name }: { name: string } ): JSX.Element {

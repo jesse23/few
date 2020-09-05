@@ -5,28 +5,37 @@ module.exports = {
         // '^.+\\.tsx?$': 'ts-jest'
         // TODO: switch to babel-jest later
         '^.+\\.tsx?$': [ 'babel-jest', {
-                exclude: 'node_modules/**',
-                presets: [
-                    [ '@babel/preset-env', {
-                        // modules: 'commonjs'
-                        targets: {
-                            // browsers: [ 'last 2 versions', 'ie >= 11' ]
-                            browsers: [ 'last 1 chrome versions' ]
-                        }
-                    } ],
-                    // https://github.com/facebook/create-react-app/blob/f5c3bdb65480f93b2d4a4c2f3214fc50753de434/packages/babel-preset-react-app/create.js
-                    [ '@babel/preset-react', {
-                        // pragma: 'this.$createElement'
-                        // align with vue
-                        pragma: 'h',
-                        pragmaFrag: 'h.Fragment',
-                        // development: true,
-                        useBuiltIns: true
-                    } ],
-                    [ '@babel/preset-typescript', { onlyRemoveTypeImports: true } ]
+            exclude: 'node_modules/**',
+            presets: [
+                [ '@babel/preset-env', {
+                    // modules: 'commonjs'
+                    targets: {
+                        // browsers: [ 'last 2 versions', 'ie >= 11' ]
+                        browsers: [ 'last 1 chrome versions' ]
+                    }
+                } ],
+                // https://github.com/facebook/create-react-app/blob/f5c3bdb65480f93b2d4a4c2f3214fc50753de434/packages/babel-preset-react-app/create.js
+                [ '@babel/preset-react', {
+                    // pragma: 'this.$createElement'
+                    // align with vue
+                    pragma: 'h',
+                    pragmaFrag: 'h.Fragment',
+                    // development: true,
+                    useBuiltIns: true
+                } ],
+                [ '@babel/preset-typescript', { onlyRemoveTypeImports: true } ]
+            ],
+            plugins: [
+                [
+                    'auto-import', {
+                        declarations: [
+                            { members: [ 'h' ], path: '@/vDom' }
+                        ]
+                    }
                 ]
-                // babelHelpers: 'bundled',
-                // extensions: [ '.js', '.jsx', '.ts', '.tsx' ]
+            ]
+            // babelHelpers: 'bundled',
+            // extensions: [ '.js', '.jsx', '.ts', '.tsx' ]
         } ]
     },
     // testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
@@ -48,6 +57,6 @@ module.exports = {
         // '<rootDir>/node_modules/babel-polyfill/dist/polyfill.js'
     ],
     transformIgnorePatterns: [
-      '[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$'
+        '[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$'
     ]
 };

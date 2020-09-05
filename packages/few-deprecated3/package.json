@@ -22,6 +22,8 @@
         "@babel/preset-env": "^7.10.2",
         "@babel/preset-react": "^7.10.1",
         "@babel/preset-typescript": "^7.10.1",
+        "babel-plugin-auto-import": "^1.1.0",
+        "@rollup/plugin-alias": "^3.1.1",
         "@rollup/plugin-babel": "^5.0.4",
         "@rollup/plugin-commonjs": "^13.0.0",
         "@rollup/plugin-node-resolve": "^8.1.0",
@@ -67,8 +69,5 @@
         "commitizen": {
             "path": "cz-conventional-changelog"
         }
-    },
-    "dependencies": {
-        "@rollup/plugin-alias": "^3.1.1"
     }
 }

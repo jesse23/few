@@ -1,4 +1,3 @@
-import { h } from '@/vDom';
 import { defineComponent } from '../../src/utils';
 
 export default defineComponent( {

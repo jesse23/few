@@ -1,4 +1,3 @@
-import { h } from '@/vDom';
 import { defineComponent } from '@/utils';
 
 // object way - react has similar approach in createReactClass

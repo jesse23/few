@@ -80,9 +80,9 @@ export default {
             } ]
         } ),
         postcss( {
-          extract: false,
-          modules: true,
-          use: [ 'sass' ]
+            extract: false,
+            modules: true,
+            use: [ 'sass' ]
         } ),
         resolve( {
             mainFields: [ 'module', 'main', 'jsnext:main', 'browser' ],
@@ -109,6 +109,15 @@ export default {
                 } ],
                 // https://github.com/babel/babel/issues/11851#issuecomment-661834064
                 [ '@babel/preset-typescript', { onlyRemoveTypeImports: true } ]
+            ],
+            plugins: [
+                [
+                    'auto-import', {
+                        declarations: [
+                            { members: [ 'h' ], path: '@/vDom' }
+                        ]
+                    }
+                ]
             ],
             babelHelpers: 'bundled',
             extensions
