@@ -7,6 +7,6 @@ export default defineComponent( {
         x: 3,
         y: 5
     } ),
-    render: ( model ): JSX.Element =>
+    view: ( model ): JSX.Element =>
         <div>x: {model.x}, y: {model.y}</div>
 } );

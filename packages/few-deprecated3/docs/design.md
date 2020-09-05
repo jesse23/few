@@ -1,7 +1,7 @@
 # Map form ELM
 ```
 init         => init
-view         => render
+view         => view
 update       => action
 subscription => watch
 ```

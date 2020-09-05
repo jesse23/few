@@ -39,7 +39,7 @@ export const isComponent = ( type: string | Component<never> ): type is Componen
     return component &&
         typeof component === 'object' &&
         // typeof componentDef.init === 'function' ||
-        typeof component.render === 'function'
+        typeof component.view === 'function'
         // typeof componentDef.mount === 'function'
     ;
 };

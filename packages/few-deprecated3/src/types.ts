@@ -35,7 +35,7 @@ export interface RenderFunction<T> {
 
 export interface StatelessComponentDef<T> {
     name: string;
-    render?: RenderFunction<T>;
+    view?: RenderFunction<T>;
     _compiled?: {
         [platform: string]: ( props: Props ) => JSX.Element;
     };
@@ -43,7 +43,7 @@ export interface StatelessComponentDef<T> {
 
 export interface StatefulComponentDef<T, M> extends StatelessComponentDef<M> {
     init: ( props: T ) => M;
-    render?: RenderFunction<T&M>;
+    view?: RenderFunction<T&M>;
 }
 
 // export type Component<T, M=Props> = ComponentDef<T, M> & RenderFunction<T>;

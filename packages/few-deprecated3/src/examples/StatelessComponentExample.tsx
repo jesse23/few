@@ -8,5 +8,5 @@ import { defineComponent } from '@/utils';
 // method below is not for assign but mainly for skip the display-name check :)
 export default defineComponent( {
     name: 'StatelessComponent',
-    render: ( { name }: { name: string } ): JSX.Element => <div>Hello { name || 'dummy' }</div>
+    view: ( { name }: { name: string } ): JSX.Element => <div>Hello { name || 'dummy' }</div>
 } );

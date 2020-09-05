@@ -114,7 +114,7 @@ const h: VDom = {
             return (): JSX.Element => {
                 // component.children = context.slots.default && context.slots.default();
                 // component.children = context.attrs.children;
-                return component.render( {
+                return component.view( {
                     ...componentInstance.props,
                     ...componentInstance.model,
                     dispatch: componentInstance.dispatch

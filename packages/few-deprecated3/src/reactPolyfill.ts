@@ -88,7 +88,7 @@ const h: VDom = {
                 };
             }, [] );
 
-            return component.render( {
+            return component.view( {
                 ...props,
                 ...vm.model,
                 dispatch
@@ -96,8 +96,6 @@ const h: VDom = {
         };
         RenderFn.displayName = component.name;
         return RenderFn;
-        // component.render.displayName = component.name;
-        // return component.render;
     }
 };
 
