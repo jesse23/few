@@ -89,8 +89,8 @@ const h: VDom = {
             }, [] );
 
             return component.view( {
-                ...props,
                 ...vm.model,
+                ...props,
                 dispatch
             } );
         };

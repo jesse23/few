@@ -22,7 +22,7 @@ const _testSuite = ( name: string, createApp: Function ): void =>
             const containerElem = fixture.container;
             fixture.app = createApp( Component ).mount( containerElem );
             expect( containerElem.innerHTML ).toEqual( [
-                '<div>X: 3, Y: 4</div>'
+                '<div>X: 3, Y: 4, X+Y: 7</div>'
             ].join( '' ) );
         } );
     } );

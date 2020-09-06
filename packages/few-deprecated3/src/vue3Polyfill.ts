@@ -115,8 +115,8 @@ const h: VDom = {
                 // component.children = context.slots.default && context.slots.default();
                 // component.children = context.attrs.children;
                 return component.view( {
-                    ...componentInstance.props,
                     ...componentInstance.model,
+                    ...componentInstance.props,
                     dispatch: componentInstance.dispatch
                 } );
             };
