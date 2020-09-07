@@ -1,6 +1,7 @@
 import type {
-    Component,
-    DefineComponentFn
+    ComponentDef,
+    DefineComponentFn,
+    StatefulComponentDef
 } from '@/types';
 
 /**
@@ -30,18 +31,31 @@ import type {
 export const defineComponent: DefineComponentFn = ( componentDef: never ) => componentDef;
 
 /**
+ * check if type is Component
+ * @param type component type
+ * @returns true if type is component def.
+ */
+export const isComponent = ( type: string | ComponentDef<never> ): type is ComponentDef<never> => {
+    const component = type as ComponentDef<never>;
+    return component &&
+        // typeof component === 'object' &&
+        (
+            typeof ( component as StatefulComponentDef<never, never> ).init === 'function' ||
+            typeof component.view === 'function'
+        );
+        // typeof componentDef.mount === 'function'
+};
+
+/**
  * check if type is ComponentDef. use ComponentDef.init() to detect
  * @param type component type
  * @returns true if type is component def.
  */
-export const isComponent = ( type: string | Component<never> ): type is Component<never> => {
-    const component = type as Component<never>;
+export const isStatefulComponent = <T>( type: string | ComponentDef<T> ): type is StatefulComponentDef<T, never> => {
+    const component = type as StatefulComponentDef<never, never>;
     return component &&
-        typeof component === 'object' &&
-        // typeof componentDef.init === 'function' ||
-        typeof component.view === 'function'
-        // typeof componentDef.mount === 'function'
-    ;
+        // typeof component === 'object' &&
+        typeof component.init === 'function';
 };
 
 /**

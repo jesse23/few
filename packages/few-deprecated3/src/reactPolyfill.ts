@@ -16,14 +16,14 @@ import type {
     VDom,
     Props,
     DispatchInput,
-    CreateAppFunction,
-    StatefulComponentDef
+    CreateAppFunction
 } from '@/types';
 
 import { setH } from '@/vDom';
 
 import {
     isComponent,
+    isStatefulComponent,
     isPromise
 } from '@/utils';
 
@@ -49,8 +49,7 @@ const h: VDom = {
             const initPromise = useRef( null );
 
             const [ vm, setState ] = useState( () => {
-                const temp = component as StatefulComponentDef<Props, Props>;
-                const model = temp.init ? temp.init( props ) : {};
+                const model = isStatefulComponent( component ) ? component.init( props ) : {};
                 if ( isPromise( model ) ) {
                     initPromise.current = model;
                     return {

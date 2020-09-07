@@ -4,8 +4,7 @@ import type {
     Props,
     DispatchInput,
     RenderFunction,
-    CreateAppFunction,
-    StatefulComponentDef
+    CreateAppFunction
 } from '@/types';
 
 import type {
@@ -26,7 +25,11 @@ import lodashSet from 'lodash/set';
 
 import { setH } from '@/vDom';
 
-import { isComponent, isPromise } from '@/utils';
+import {
+    isComponent,
+    isStatefulComponent,
+    isPromise
+} from '@/utils';
 
 // VueComponent wrapper
 export const defineComponent: { ( componentDef: VueComponent ): RenderFunction<Props> } = ( componentDef: never ) => componentDef;
@@ -65,7 +68,7 @@ const h: VDom = {
     createComponent: component => defineComponent( {
         name: 'Hi',
         inheritAttrs: false,
-        // in Vue render is deined as loose as 'Function'
+        // in Vue render is denied as loose as 'Function'
         // in typeScript by default JSX returns JSX.Element
         // so here even for Vue we use JSX.Element
         /*
@@ -80,8 +83,7 @@ const h: VDom = {
         },
         */
         setup: ( _: never, context: SetupContext ): RenderFunction<Props> => {
-            const temp = component as StatefulComponentDef<Props, Props>;
-            const model = temp.init ? temp.init( context.attrs ) : {};
+            const model = isStatefulComponent( component ) ? component.init( context.attrs ) : {};
 
             const componentInstance = {
                 model: reactive( isPromise( model ) ? {} : model ),
