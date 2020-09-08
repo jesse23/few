@@ -85,23 +85,25 @@ const h: VDom = {
         setup: ( _: never, context: SetupContext ): RenderFunction<Props> => {
             const model = isStatefulComponent( component ) ? component.init( context.attrs ) : {};
 
-            const componentInstance = {
-                model: reactive( isPromise( model ) ? {} : model ),
-                dispatch: ( { path, value }: DispatchInput ): void => {
-                    lodashSet( componentInstance.model, path, value );
-                },
+            const vm = {
+                model: reactive( isPromise( model ) ? {} : model )
                 /*
                 ref: ( ( path?: string ) => ( el: HTMLElement ): void => {
                     component.ref[path || 'el'] = el;
                 } ) as Ref,
                 */
-                props: context.attrs
             };
+
+            const dispatch = ( { path, value }: DispatchInput ): void => {
+                lodashSet( vm.model, path, value );
+            };
+
+            vm.model.dispatch = dispatch;
 
             onMounted( () => {
                 if ( isPromise( model ) ) {
                     Promise.resolve( model ).then( model => {
-                        Object.assign( componentInstance.model, model );
+                        Object.assign( vm.model, model );
                     } ).then( () => {
                         // componentDef.mount && componentDef.mount( component );
                     } );
@@ -114,13 +116,12 @@ const h: VDom = {
             } );
 
             return (): JSX.Element => {
+                // update props
+                Object.assign( vm.model, context.attrs );
+
                 // component.children = context.slots.default && context.slots.default();
                 // component.children = context.attrs.children;
-                return component.view( {
-                    ...componentInstance.model,
-                    ...componentInstance.props,
-                    dispatch: componentInstance.dispatch
-                } );
+                return component.view( vm.model );
             };
         }
     } )

@@ -48,6 +48,12 @@ const h: VDom = {
         const RenderFn = ( props: Props ): JSX.Element => {
             const initPromise = useRef( null );
 
+            // Approach 1:
+            // - state = { vm: { ...model, ...actions, ...props, dispatch } }
+            //   - All existing bindings will be on vm
+            //   - {...state } is safe to trigger re-render without corrupt any bindings
+            //   - helper var like initPromise can be part of state - as soon as no one will use state
+            //     directly we are good
             const [ vm, setState ] = useState( () => {
                 const model = isStatefulComponent( component ) ? component.init( props ) : {};
                 if ( isPromise( model ) ) {
@@ -65,6 +71,10 @@ const h: VDom = {
                 lodashSet( vm.model, path, value );
                 setState( { ...vm } );
             };
+
+            // Assign prop and action
+            Object.assign( vm.model, props );
+            Object.assign( vm.model, { dispatch } );
 
             // async init
             // https://stackoverflow.com/questions/49906437/how-to-cancel-a-fetch-on-componentwillunmount
@@ -87,11 +97,7 @@ const h: VDom = {
                 };
             }, [] );
 
-            return component.view( {
-                ...vm.model,
-                ...props,
-                dispatch
-            } );
+            return component.view( vm.model );
         };
         RenderFn.displayName = component.name;
         return RenderFn;
