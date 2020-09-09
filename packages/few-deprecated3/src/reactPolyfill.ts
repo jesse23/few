@@ -4,7 +4,7 @@ import {
     useState,
     useEffect,
     Fragment,
-    createElement
+    createElement, useCallback
 } from 'react';
 
 import ReactDOM from 'react-dom';
@@ -46,25 +46,23 @@ const h: VDom = {
     },
     createComponent: component => {
         const RenderFn = ( props: Props ): JSX.Element => {
+            const scope = useRef( {} );
             const initPromise = useRef( null );
 
             // Approach 1:
-            // - state = { vm: { ...model, ...actions, ...props, dispatch } }
+            // - vm = { model: { ...model, ...actions, ...props, dispatch } }
             //   - All existing bindings will be on vm
-            //   - {...state } is safe to trigger re-render without corrupt any bindings
+            //   - {...vm } is safe to trigger re-render without corrupt any bindings
             //   - helper var like initPromise can be part of state - as soon as no one will use state
             //     directly we are good
-            const [ vm, setState ] = useState( () => {
+            //
+            // Approach 2:
+            // - vm = { model: { ...model, ...actions, ...props, dispatch } }
+            // - for update we use {...model}
+            const [ model, setState ] = useState( () => {
                 const model = isStatefulComponent( component ) ? component.init( props ) : {};
 
                 const componentInstance = {} as Props;
-
-                if( isStatefulComponent( component ) && component.actions ) {
-                    componentInstance.actions = Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => {
-                        sum[key] = ( ...args: any[] ): void => fn( componentInstance.model, ...args );
-                        return sum;
-                    }, {} as Props );
-                }
 
                 if ( isPromise( model ) ) {
                     initPromise.current = model;
@@ -72,18 +70,23 @@ const h: VDom = {
                 } else {
                     componentInstance.model = model;
                 }
-                return componentInstance;
+                return componentInstance.model as Props;
             } );
 
-            const dispatch = ( { path, value }: DispatchInput ): void => {
-                lodashSet( vm.model, path, value );
-                setState( { ...vm } );
-            };
+            const dispatch = useCallback( ( { path, value }: DispatchInput ): void => {
+                lodashSet( model, path, value );
+                setState( { ...model } );
+            }, [] );
+
+            const actions = isStatefulComponent( component ) && component.actions ? Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => {
+                sum[key] = ( ...args: any[] ): void => fn( model, ...args );
+                return sum;
+            }, {} as Props ) : {};
 
             // Assign prop and action
-            Object.assign( vm.model, vm.actions );
-            Object.assign( vm.model, props );
-            Object.assign( vm.model, { dispatch } );
+            Object.assign( model, actions );
+            Object.assign( model, props );
+            Object.assign( model, { dispatch } );
 
             // async init
             // https://stackoverflow.com/questions/49906437/how-to-cancel-a-fetch-on-componentwillunmount
@@ -92,7 +95,7 @@ const h: VDom = {
                     // all API be consistent
                     Promise.resolve( initPromise.current ).then( model =>
                         // do Object.assign for mutation
-                        setState( v => ( ( Object.assign( v.model, model ), { ...v } ) ) )
+                        setState( v => ( ( Object.assign( v, model ), { ...v } ) ) )
                         // mount after async init
                     ).then( () => {
                         // componentDef.mount && componentDef.mount( component );
@@ -106,7 +109,7 @@ const h: VDom = {
                 };
             }, [] );
 
-            return component.view( vm.model );
+            return component.view( model );
         };
         RenderFn.displayName = component.name;
         return RenderFn;
