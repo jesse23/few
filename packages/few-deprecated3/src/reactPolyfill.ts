@@ -56,15 +56,23 @@ const h: VDom = {
             //     directly we are good
             const [ vm, setState ] = useState( () => {
                 const model = isStatefulComponent( component ) ? component.init( props ) : {};
+
+                const componentInstance = {} as Props;
+
+                if( isStatefulComponent( component ) && component.actions ) {
+                    componentInstance.actions = Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => {
+                        sum[key] = ( ...args: any[] ): void => fn( componentInstance.model, ...args );
+                        return sum;
+                    }, {} as Props );
+                }
+
                 if ( isPromise( model ) ) {
                     initPromise.current = model;
-                    return {
-                        model: {}
-                    };
+                    componentInstance.model = {};
+                } else {
+                    componentInstance.model = model;
                 }
-                return {
-                    model
-                };
+                return componentInstance;
             } );
 
             const dispatch = ( { path, value }: DispatchInput ): void => {
@@ -73,6 +81,7 @@ const h: VDom = {
             };
 
             // Assign prop and action
+            Object.assign( vm.model, vm.actions );
             Object.assign( vm.model, props );
             Object.assign( vm.model, { dispatch } );
 

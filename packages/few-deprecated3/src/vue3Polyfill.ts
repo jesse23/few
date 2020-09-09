@@ -86,7 +86,8 @@ const h: VDom = {
             const model = isStatefulComponent( component ) ? component.init( context.attrs ) : {};
 
             const vm = {
-                model: reactive( isPromise( model ) ? {} : model )
+                model: reactive( isPromise( model ) ? {} : model ),
+                actions: {}
                 /*
                 ref: ( ( path?: string ) => ( el: HTMLElement ): void => {
                     component.ref[path || 'el'] = el;
@@ -97,6 +98,11 @@ const h: VDom = {
             const dispatch = ( { path, value }: DispatchInput ): void => {
                 lodashSet( vm.model, path, value );
             };
+
+            const actions = isStatefulComponent( component ) && component.actions ? Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => {
+                sum[key] = ( ...args: any[] ): void => fn( vm.model, ...args );
+                return sum;
+            }, {} as Props ) : {};
 
             vm.model.dispatch = dispatch;
 
@@ -117,6 +123,7 @@ const h: VDom = {
 
             return (): JSX.Element => {
                 // update props
+                Object.assign( vm.model, actions );
                 Object.assign( vm.model, context.attrs );
 
                 // component.children = context.slots.default && context.slots.default();

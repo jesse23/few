@@ -41,8 +41,16 @@ export interface StatelessComponentDef<T> {
     };
 }
 
+// Action Def
+export type ActionDef<T> = ( vm: T, ...args: any[] ) => void
+
+export interface ActionDefMap<T> {
+    [key: string]: ActionDef<T>;
+}
+
 export interface StatefulComponentDef<T, M> extends StatelessComponentDef<M> {
     init: ( props: T ) => M;
+    actions?: ActionDefMap<T&M>;
     view?: RenderFunction<T&M>;
 }
 
