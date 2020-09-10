@@ -1,12 +1,7 @@
-import { defineComponent } from '@/utils';
-
-/**
- * wait for elapsed time and return a promise
- * @param elapsed elapsed time
- * @returns promise
- */
-export const wait = ( elapsed = 0 ): Promise<{}> =>
-    new Promise( resolve => setTimeout( () => resolve( null ), elapsed ) );
+import {
+    defineComponent,
+    wait
+} from '@/utils';
 
 export default defineComponent( {
     name: 'AsyncInitExample',
