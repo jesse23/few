@@ -11,14 +11,14 @@ export default defineComponent( {
     actions: {
         plusOneSync: ( { value, dispatch } ) =>
             void dispatch( { path: 'value', value: value + 1 } ),
-        plusOneAsync: async( { value, dispatch } ) => void (
-            await wait( 1000 ),
-            dispatch( { path: 'value', value: ++value } )
+        plusOneAsync: async( { plusOneSync } ) => void (
+            await wait( 4000 ),
+            plusOneSync()
         ),
-        plusOneSyncAsync: async( { value, dispatch } ) => void (
-            dispatch( { path: 'value', value: ++value } ),
-            await wait( 1000 ),
-            dispatch( { path: 'value', value: ++value } )
+        plusOneSyncAsync: async( { plusOneSync } ) => void (
+            plusOneSync(),
+            await wait( 4000 ),
+            plusOneSync()
         )
     },
     view: ( { value, plusOneSync, plusOneAsync, plusOneSyncAsync } ): JSX.Element =>

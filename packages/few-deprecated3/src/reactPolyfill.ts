@@ -9,7 +9,7 @@ import {
 
 import ReactDOM from 'react-dom';
 
-import lodashSet from 'lodash/set';
+import lodashFpSet from 'lodash/fp/set';
 
 import type {
     App,
@@ -46,20 +46,10 @@ const h: VDom = {
     },
     createComponent: component => {
         const RenderFn = ( props: Props ): JSX.Element => {
-            const scope = useRef( {} );
+            /// const scope = useRef( {} as Props );
             const initPromise = useRef( null );
 
-            // Approach 1:
-            // - vm = { model: { ...model, ...actions, ...props, dispatch } }
-            //   - All existing bindings will be on vm
-            //   - {...vm } is safe to trigger re-render without corrupt any bindings
-            //   - helper var like initPromise can be part of state - as soon as no one will use state
-            //     directly we are good
-            //
-            // Approach 2:
-            // - vm = { model: { ...model, ...actions, ...props, dispatch } }
-            // - for update we use {...model}
-            const [ model, setState ] = useState( () => {
+            const [ state, setState ] = useState( () => {
                 const model = isStatefulComponent( component ) ? component.init( props ) : {};
 
                 const componentInstance = {} as Props;
@@ -70,34 +60,42 @@ const h: VDom = {
                 } else {
                     componentInstance.model = model;
                 }
+
                 return componentInstance.model as Props;
             } );
 
-            const dispatch = useCallback( ( { path, value }: DispatchInput ): void => {
-                lodashSet( model, path, value );
-                setState( { ...model } );
-            }, [] );
-
-            const actions = isStatefulComponent( component ) && component.actions ? Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => {
-                sum[key] = ( ...args: any[] ): void => fn( model, ...args );
-                return sum;
-            }, {} as Props ) : {};
-
-            // Assign prop and action
-            Object.assign( model, actions );
-            Object.assign( model, props );
-            Object.assign( model, { dispatch } );
+            const stateRef = useRef( {
+                model: state,
+                actions: isStatefulComponent( component ) && component.actions ? Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => {
+                    sum[key] = ( ...args: any[] ): void => fn( stateRef.current.getScope( props ), ...args );
+                    return sum;
+                }, {} as Props ) : {},
+                getState: () => stateRef.current.model,
+                dispatch: ( { path, value }: DispatchInput ): void => {
+                    stateRef.current.model = lodashFpSet( path, value, stateRef.current.model as never );
+                    setState( stateRef.current.model );
+                    // setState( model => lodashFpSet( path, value, model ) );
+                },
+                getScope: () => {
+                    return {
+                        ...stateRef.current.model,
+                        ...stateRef.current.actions,
+                        dispatch: stateRef.current.dispatch
+                    };
+                }
+            } as Props );
 
             // async init
             // https://stackoverflow.com/questions/49906437/how-to-cancel-a-fetch-on-componentwillunmount
             useEffect( () => {
                 if ( initPromise.current ) {
                     // all API be consistent
-                    Promise.resolve( initPromise.current ).then( model =>
+                    Promise.resolve( initPromise.current ).then( model => {
                         // do Object.assign for mutation
-                        setState( v => ( ( Object.assign( v, model ), { ...v } ) ) )
+                        stateRef.current.model = model;
+                        setState( model );
                         // mount after async init
-                    ).then( () => {
+                    } ).then( () => {
                         // componentDef.mount && componentDef.mount( component );
                     } );
                 } else {
@@ -109,7 +107,7 @@ const h: VDom = {
                 };
             }, [] );
 
-            return component.view( model );
+            return component.view( stateRef.current.getScope() );
         };
         RenderFn.displayName = component.name;
         return RenderFn;
