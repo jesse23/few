@@ -80,7 +80,8 @@ const h: VDom = {
                     return {
                         ...stateRef.current.model,
                         ...stateRef.current.actions,
-                        dispatch: stateRef.current.dispatch
+                        dispatch: stateRef.current.dispatch,
+                        ...props
                     };
                 }
             } as Props );
