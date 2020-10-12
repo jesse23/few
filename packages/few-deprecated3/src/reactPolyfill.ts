@@ -16,7 +16,8 @@ import type {
     VDom,
     Props,
     DispatchInput,
-    CreateAppFunction
+    CreateAppFunction,
+    Component
 } from '@/types';
 
 import { setH } from '@/vDom';
@@ -26,11 +27,98 @@ import {
     isStatefulComponent,
     isPromise
 } from '@/utils';
+import { sum } from 'lodash';
 
 const useInit = ( fn: Function, initialized = true ): void => {
     // assume fn does not change in this case
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect( () => initialized ? fn() : undefined, [ initialized ] );
+};
+
+interface Store {
+    getState: () => Props;
+    dispatch: ( { path, value }: DispatchInput ) => void;
+}
+
+type InitFn = () => Props;
+
+type UseStoreFn = ( fn: InitFn ) => Store;
+
+const useStore = ( fn: InitFn ): Store => {
+    const modelRef = useRef( null );
+
+    const [ model, setModel ] = useState( fn );
+    modelRef.current = model;
+
+    const storeRef = useRef( {
+        getState: () => modelRef.current,
+        dispatch: ( { path, value }: DispatchInput ): void => {
+            // TODO: temp fix for `setState` usage
+            modelRef.current.model = path ? lodashFpSet( path, value, modelRef.current.model as never ) : value;
+            setModel( modelRef.current.model );
+            // setState( model => lodashFpSet( path, value, model ) );
+        }
+    } );
+
+    return storeRef.current;
+};
+
+const useScope = ( component: Component<Props>, props: Props, store: Store ): Store => {
+    // ref to prop for action use case
+    const propRef = useRef( null );
+    propRef.current = props;
+
+    const actionsRef = useRef( null );
+
+    // scope
+    const scopeRef = useRef( {
+        getState: (): Props => ( {
+            ...store.getState(),
+            dispatch: store.dispatch,
+            ...actionsRef.current,
+            ...propRef.current
+        } as Props ),
+        dispatch: store.dispatch
+    } );
+
+    // action
+    if ( !actionsRef.current ) {
+        actionsRef.current = isStatefulComponent( component ) && component.actions ? Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => ( {
+            ...sum,
+            [key]: ( ...args: any[] ): void => fn( scopeRef.current.getState(), ...args )
+        } ), {} as Props ) : {};
+    }
+
+    return scopeRef.current;
+};
+
+const useAsyncInit = ( useStoreFn: UseStoreFn, initFn: InitFn ): [Props, boolean] => {
+    const initRef = useRef( {
+        done: false,
+        pending: null as Promise<Props>
+    } );
+
+    const store = useStoreFn( () => {
+        const result = initFn();
+        if ( isPromise( result ) ) {
+            initRef.current.pending = result;
+            return {};
+        }
+        initRef.current.done = true;
+        return result;
+    } );
+
+    useInit( () => {
+        // all API be consistent
+        Promise.resolve( initRef.current.pending ).then( model => {
+            // do Object.assign for mutation
+            initRef.current.pending = null;
+            initRef.current.done = true;
+            store.dispatch( { path: '', value: model } );
+        } );
+    }, Boolean( initRef.current.pending ) );
+
+    return [ store, initRef.current.done ];
 };
 
 const h: VDom = {
@@ -50,77 +138,25 @@ const h: VDom = {
         }
         return createElement( type, props, ...children );
     },
-    createComponent: component => {
-        const RenderFn = ( props: Props ): JSX.Element => {
-            /// const scope = useRef( {} as Props );
-            const initRef = useRef( {
-                pending: null as Promise<Props>,
-                done: false
-            } );
+    createComponent: component => Object.assign( ( props: Props ): JSX.Element => {
+        // async init
+        const [ scope, done ] = useAsyncInit(
+            fn => useScope( component, props, useStore( fn ) ),
+            () => isStatefulComponent( component ) ? component.init( props ) : {}
+        );
 
-            const [ model, setModel ] = useState( () => {
-                const model = isStatefulComponent( component ) ? component.init( props ) : {};
+        // onMount
+        useInit( () => {
+            // componentDef.mount && componentDef.mount( component );
+            return (): void => {
+                // componentDef.unmount && componentDef.unmount( component );
+            };
+        }, done );
 
-                if ( isPromise( model ) ) {
-                    initRef.current.pending = model;
-                    return {};
-                }
-                initRef.current.done = true;
-                return model;
-            } );
-
-            const vmInstanceRef = useRef( {
-                props,
-                model,
-                // getState: () => stateRef.current.model,
-                dispatch: ( { path, value }: DispatchInput ): void => {
-                    vmInstanceRef.current.model = lodashFpSet( path, value, vmInstanceRef.current.model as never );
-                    setModel( vmInstanceRef.current.model );
-                    // setState( model => lodashFpSet( path, value, model ) );
-                },
-                actions: isStatefulComponent( component ) && component.actions ? Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => {
-                    sum[key] = ( ...args: any[] ): void => fn( vmInstanceRef.current.getScope(), ...args );
-                    return sum;
-                }, {} as Props ) : {},
-                getScope: () => {
-                    return {
-                        ...vmInstanceRef.current.model,
-                        dispatch: vmInstanceRef.current.dispatch,
-                        ...vmInstanceRef.current.actions,
-                        ...vmInstanceRef.current.props
-                    };
-                }
-            } );
-
-            vmInstanceRef.current.props = props;
-
-            // async init
-            // https://stackoverflow.com/questions/49906437/how-to-cancel-a-fetch-on-componentwillunmount
-            useInit( () => {
-                // all API be consistent
-                Promise.resolve( initRef.current.pending ).then( model => {
-                    // do Object.assign for mutation
-                    initRef.current.pending = null;
-                    initRef.current.done = true;
-                    vmInstanceRef.current.model = model;
-                    setModel( model );
-                    // mount after async init
-                } );
-            }, Boolean( initRef.current.pending ) );
-
-            // onMount
-            useInit( () => {
-                // componentDef.mount && componentDef.mount( component );
-                return (): void => {
-                    // componentDef.unmount && componentDef.unmount( component );
-                };
-            }, initRef.current.done );
-
-            return component.view( vmInstanceRef.current.getScope() );
-        };
-        RenderFn.displayName = component.name;
-        return RenderFn;
-    }
+        return component.view( scope.getState() );
+    }, {
+        displayName: component.name
+    } )
 };
 
 export const createApp: CreateAppFunction = component => {
