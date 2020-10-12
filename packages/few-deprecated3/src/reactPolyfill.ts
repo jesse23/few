@@ -4,7 +4,7 @@ import {
     useState,
     useEffect,
     Fragment,
-    createElement, useCallback
+    createElement
 } from 'react';
 
 import ReactDOM from 'react-dom';
@@ -27,6 +27,12 @@ import {
     isPromise
 } from '@/utils';
 
+const useInit = ( fn: Function, initialized = true ): void => {
+    // assume fn does not change in this case
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect( () => initialized ? fn() : undefined, [ initialized ] );
+};
+
 const h: VDom = {
     type: 'react',
     Fragment,
@@ -47,68 +53,70 @@ const h: VDom = {
     createComponent: component => {
         const RenderFn = ( props: Props ): JSX.Element => {
             /// const scope = useRef( {} as Props );
-            const initPromise = useRef( null );
-
-            const [ state, setState ] = useState( () => {
-                const model = isStatefulComponent( component ) ? component.init( props ) : {};
-
-                const componentInstance = {} as Props;
-
-                if ( isPromise( model ) ) {
-                    initPromise.current = model;
-                    componentInstance.model = {};
-                } else {
-                    componentInstance.model = model;
-                }
-
-                return componentInstance.model as Props;
+            const initRef = useRef( {
+                pending: null as Promise<Props>,
+                done: false
             } );
 
-            const stateRef = useRef( {
-                model: state,
-                actions: isStatefulComponent( component ) && component.actions ? Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => {
-                    sum[key] = ( ...args: any[] ): void => fn( stateRef.current.getScope( props ), ...args );
-                    return sum;
-                }, {} as Props ) : {},
-                getState: () => stateRef.current.model,
+            const [ model, setModel ] = useState( () => {
+                const model = isStatefulComponent( component ) ? component.init( props ) : {};
+
+                if ( isPromise( model ) ) {
+                    initRef.current.pending = model;
+                    return {};
+                }
+                initRef.current.done = true;
+                return model;
+            } );
+
+            const vmInstanceRef = useRef( {
+                props,
+                model,
+                // getState: () => stateRef.current.model,
                 dispatch: ( { path, value }: DispatchInput ): void => {
-                    stateRef.current.model = lodashFpSet( path, value, stateRef.current.model as never );
-                    setState( stateRef.current.model );
+                    vmInstanceRef.current.model = lodashFpSet( path, value, vmInstanceRef.current.model as never );
+                    setModel( vmInstanceRef.current.model );
                     // setState( model => lodashFpSet( path, value, model ) );
                 },
+                actions: isStatefulComponent( component ) && component.actions ? Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => {
+                    sum[key] = ( ...args: any[] ): void => fn( vmInstanceRef.current.getScope(), ...args );
+                    return sum;
+                }, {} as Props ) : {},
                 getScope: () => {
                     return {
-                        ...stateRef.current.model,
-                        ...stateRef.current.actions,
-                        dispatch: stateRef.current.dispatch,
-                        ...props
+                        ...vmInstanceRef.current.model,
+                        dispatch: vmInstanceRef.current.dispatch,
+                        ...vmInstanceRef.current.actions,
+                        ...vmInstanceRef.current.props
                     };
                 }
-            } as Props );
+            } );
+
+            vmInstanceRef.current.props = props;
 
             // async init
             // https://stackoverflow.com/questions/49906437/how-to-cancel-a-fetch-on-componentwillunmount
-            useEffect( () => {
-                if ( initPromise.current ) {
-                    // all API be consistent
-                    Promise.resolve( initPromise.current ).then( model => {
-                        // do Object.assign for mutation
-                        stateRef.current.model = model;
-                        setState( model );
-                        // mount after async init
-                    } ).then( () => {
-                        // componentDef.mount && componentDef.mount( component );
-                    } );
-                } else {
-                    // componentDef.mount && componentDef.mount( component );
-                }
+            useInit( () => {
+                // all API be consistent
+                Promise.resolve( initRef.current.pending ).then( model => {
+                    // do Object.assign for mutation
+                    initRef.current.pending = null;
+                    initRef.current.done = true;
+                    vmInstanceRef.current.model = model;
+                    setModel( model );
+                    // mount after async init
+                } );
+            }, Boolean( initRef.current.pending ) );
 
+            // onMount
+            useInit( () => {
+                // componentDef.mount && componentDef.mount( component );
                 return (): void => {
                     // componentDef.unmount && componentDef.unmount( component );
                 };
-            }, [] );
+            }, initRef.current.done );
 
-            return component.view( stateRef.current.getScope() );
+            return component.view( vmInstanceRef.current.getScope() );
         };
         RenderFn.displayName = component.name;
         return RenderFn;
