@@ -27,13 +27,6 @@ import {
     isStatefulComponent,
     isPromise
 } from '@/utils';
-import { sum } from 'lodash';
-
-const useInit = ( fn: Function, initialized = true ): void => {
-    // assume fn does not change in this case
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect( () => initialized ? fn() : undefined, [ initialized ] );
-};
 
 interface Store {
     getState: () => Props;
@@ -43,6 +36,12 @@ interface Store {
 type InitFn = () => Props;
 
 type UseStoreFn = ( fn: InitFn ) => Store;
+
+const useInit = ( fn: Function, initialized = true ): void => {
+    // assume fn does not change in this case
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect( () => initialized ? fn() : undefined, [ initialized ] );
+};
 
 const useStore = ( fn: InitFn ): Store => {
     const modelRef = useRef( null );
