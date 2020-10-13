@@ -1,7 +1,7 @@
 // React
 import {
     useRef,
-    useState,
+    useReducer,
     useEffect,
     Fragment,
     createElement
@@ -43,20 +43,22 @@ const useInit = ( fn: Function, initialized = true ): void => {
     useEffect( () => initialized ? fn() : undefined, [ initialized ] );
 };
 
-const useStore = ( fn: InitFn ): Store => {
-    const modelRef = useRef( null );
 
-    const [ model, setModel ] = useState( fn );
-    modelRef.current = model;
+// https://transang.me/get-state-callback-with-usereducer/
+const useStore = ( fn: InitFn ): Store => {
+    const lastState = useRef( null );
+
+    // to prevent reducer called twice, per: https://github.com/facebook/react/issues/16295
+    const reducer = useRef( ( model: Props, { path, value }: DispatchInput ): Props =>
+        lastState.current = path ? lodashFpSet( path, value, model as never ) : value
+    ).current;
+
+    const [ model, dispatch ] = useReducer( reducer, null, fn );
+    lastState.current = model;
 
     const storeRef = useRef( {
-        getState: () => modelRef.current,
-        dispatch: ( { path, value }: DispatchInput ): void => {
-            // TODO: temp fix for `setState` usage
-            modelRef.current.model = path ? lodashFpSet( path, value, modelRef.current.model as never ) : value;
-            setModel( modelRef.current.model );
-            // setState( model => lodashFpSet( path, value, model ) );
-        }
+        getState: () => lastState.current,
+        dispatch
     } );
 
     return storeRef.current;
@@ -84,7 +86,9 @@ const useScope = ( component: Component<Props>, props: Props, store: Store ): St
     if ( !actionsRef.current ) {
         actionsRef.current = isStatefulComponent( component ) && component.actions ? Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => ( {
             ...sum,
-            [key]: ( ...args: any[] ): void => fn( scopeRef.current.getState(), ...args )
+            [key]: ( ...args: any[] ): void => {
+                fn( scopeRef.current.getState(), ...args );
+            }
         } ), {} as Props ) : {};
     }
 
