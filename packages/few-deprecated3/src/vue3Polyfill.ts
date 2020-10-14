@@ -58,8 +58,9 @@ const h: VDom = {
             }
             childrenN = childrenN && childrenN.length === 1 ? childrenN[0] as VNodeArrayChildren : childrenN;
             return createElement( type._compiled.vue, {
-                ...props,
-                childrenN
+                ...props
+                // TODO: not sure what will happen before children example is done
+                // childrenN
             } );
         } else if ( !type ) {
             return createElement( Fragment, props, childrenN );
@@ -119,10 +120,10 @@ const h: VDom = {
                         Object.assign( model, m );
                         initRes = null;
                     } ).then( () => {
-                        // componentDef.mount && componentDef.mount( component );
+                        component.mount && component.mount( getState() );
                     } );
                 } else {
-                    // componentDef.mount && componentDef.mount( component );
+                    component.mount && component.mount( getState() );
                 }
 
                 // for onmount/init

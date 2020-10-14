@@ -171,7 +171,7 @@ const h: VDom = {
 
         // onMount
         useInit( () => {
-            // component.mount && component.mount( component );
+            component.mount && component.mount( scope.getState() );
             return (): void => component.unmount && component.unmount( scope.getState() );
         }, done );
 

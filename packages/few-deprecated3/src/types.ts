@@ -39,6 +39,7 @@ export interface StatelessComponentDef<T> {
     _compiled?: {
         [platform: string]: ( props: Props ) => JSX.Element;
     };
+    mount?: ActionDef<T>;
     unmount?: ActionDef<T>;
 }
 
@@ -51,8 +52,10 @@ export interface ActionDefMap<T> {
 
 export interface StatefulComponentDef<T, M> extends StatelessComponentDef<M> {
     init: ( props: T ) => M|Promise<M>;
-    actions?: ActionDefMap<T&M>;
     view?: RenderFunction<T&M>;
+    actions?: ActionDefMap<T&M>;
+    mount?: ActionDef<T&M>;
+    unmount?: ActionDef<T&M>;
 }
 
 // export type Component<T, M=Props> = ComponentDef<T, M> & RenderFunction<T>;
