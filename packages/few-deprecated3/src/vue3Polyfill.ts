@@ -38,7 +38,7 @@ export const defineComponent: { ( componentDef: VueComponent ): RenderFunction<P
 const h: VDom = {
     type: 'vue',
     Fragment,
-    createElement: ( type, props?, ...children ) => {
+    createElement: ( type, props?, ...childArr ) => {
         // align on input behavior with react
         if ( type === 'input' && props.onChange ) {
             props.onInput = props.onChange;
@@ -47,7 +47,7 @@ const h: VDom = {
 
         // [Vue warn]: Non-function value encountered for default slot. Prefer function slots for better performance.
         // set children to null if children === []
-        let childrenN = ( children.length > 0 ? children : null ) as VNodeArrayChildren;
+        let children = ( childArr.length > 0 ? childArr : null ) as VNodeArrayChildren;
 
         if ( isComponent( type ) ) {
             if ( !type._compiled || !type._compiled.vue ) {
@@ -56,16 +56,16 @@ const h: VDom = {
                     vue: h.createComponent( type )
                 };
             }
-            childrenN = childrenN && childrenN.length === 1 ? childrenN[0] as VNodeArrayChildren : childrenN;
+            children = children && children.length === 1 ? children[0] as VNodeArrayChildren : children;
             return createElement( type._compiled.vue, {
-                ...props
+                ...props,
                 // TODO: not sure what will happen before children example is done
-                // childrenN
+                children
             } );
         } else if ( !type ) {
-            return createElement( Fragment, props, childrenN );
+            return createElement( Fragment, props, children );
         }
-        return createElement( type, props, childrenN );
+        return createElement( type, props, children );
     },
     createComponent: component => defineComponent( {
         name: component.name,

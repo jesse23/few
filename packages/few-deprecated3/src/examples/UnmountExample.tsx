@@ -1,15 +1,7 @@
-import { defineComponent } from '../utils';
-
-/**
- * wait for elapsed time and return a promise
- * @param elapsed elapsed time
- * @returns promise
- */
-export const wait = ( elapsed = 0 ): Promise<{}> => {
-    return new Promise( resolve => setTimeout( () => {
-        resolve( null );
-    }, elapsed ) );
-};
+import {
+    defineComponent,
+    wait
+} from '@/utils';
 
 export const mockServer = {
     _server: {} as { [key: string]: string },
@@ -25,18 +17,19 @@ export const mockServer = {
 const UnmountActionComponent = defineComponent( {
     name: 'UnmountActionComponent',
     // elm returns model and cmd ( call back which will launch dispatch )
-    init: async() =>  ( {
+    init: async() => ( {
         id: await mockServer.register( 'john' )
     } ),
     unmount: ( { id } ) => {
         mockServer.unregister( id as string );
     },
     actions: {
-        plusOne: ( { value, dispatch } ) => void dispatch( { path: 'value', value: value as number + 1 } )
+        plusOne: ( { value, dispatch } ) => void
+            dispatch( { path: 'value', value: value as number + 1 } )
     },
-    view: ( { id } ): JSX.Element =>
+    view: ( { id } ) =>
         <pre>
-           id: {id || 'loading...'}
+            id: {id || 'loading...'}
         </pre>
 } );
 
@@ -48,9 +41,9 @@ export default defineComponent( {
     actions: {
         toggle: ( { enabled, dispatch } ) => void dispatch( { path: 'enabled', value: !enabled } )
     },
-    view: ( { enabled, toggle } ): JSX.Element =>
+    view: ( { enabled, toggle } ) =>
         <>
-            { enabled ? <UnmountActionComponent /> : '' }
+            { enabled ? <UnmountActionComponent /> : ''}
             <button id='toggleButton' onClick={toggle}>toggle</button>
         </>
 } );

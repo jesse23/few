@@ -9,7 +9,7 @@ export default defineComponent( {
     init: () => wait( 1000 ).then( () => ( {
         asyncVal: 'async value'
     } ) ),
-    view: ( { asyncVal } ): JSX.Element =>
+    view: ( { asyncVal } ) =>
         <pre>
             asyncVal: {`"${asyncVal}"`}
         </pre>

@@ -9,7 +9,7 @@ export default defineComponent( {
     actions: {
         plusOne: ( { value, dispatch } ) => void dispatch( { path: 'value', value: value + 1 } )
     },
-    view: ( { value, plusOne } ): JSX.Element =>
+    view: ( { value, plusOne } ) =>
         <div>
             <div>current number: {value}</div>
             {/*

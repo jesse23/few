@@ -1,24 +1,14 @@
-import { defineComponent } from '../../src/utils';
-
-/**
- * wait for elapsed time and return a promise
- * @param elapsed elapsed time
- * @returns promise
- */
-export const wait = ( elapsed = 0 ): Promise<{}> => {
-    return new Promise( resolve => setTimeout( () => {
-        resolve( null );
-    }, elapsed ) );
-};
+import {
+    defineComponent,
+    wait
+} from '@/utils';
 
 export default defineComponent( {
-    name: 'MountActionExample',
+    name: 'MountExample',
     // elm returns model and cmd ( call back which will launch dispatch )
-    init: () => wait( 500 ).then( () => {
-        return {
-            mountVal: 'initVal'
-        };
-    } ),
+    init: () => wait( 500 ).then( () => ( {
+        mountVal: 'initVal'
+    } ) ),
     mount: async( { dispatch } ) => {
         await wait( 500 );
         dispatch( { path: 'mountVal', value: 'mountVal' } );
@@ -28,7 +18,7 @@ export default defineComponent( {
         console.log( id );
     },
     */
-    view: ( model ): JSX.Element =>
+    view: model =>
         <pre>
             {JSON.stringify( model )}
         </pre>

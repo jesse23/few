@@ -4,14 +4,13 @@ import {
 } from '@/utils';
 
 export default defineComponent( {
-    name: 'AsyncActionExample',
+    name: 'AsyncPlusExample',
     init: () => ( {
         value: 7
     } ),
     actions: {
-        plusOneSync: ( { value, dispatch } ) => {
-            dispatch( { path: 'value', value: value + 1 } );
-        },
+        plusOneSync: ( { value, dispatch } ) => void
+            dispatch( { path: 'value', value: value + 1 } ),
         plusTwoSync: ( { plusOneSync } ) => void (
             plusOneSync(),
             plusOneSync()
@@ -26,7 +25,7 @@ export default defineComponent( {
             plusOneSync()
         )
     },
-    view: ( { value, plusOneSync, plusOneAsync, plusOneSyncAsync, plusTwoSync } ): JSX.Element =>
+    view: ( { value, plusOneSync, plusOneAsync, plusOneSyncAsync, plusTwoSync } ) =>
         <div>
             <div id='value'>{value}</div>
             <button id='plusOneSync' onClick={plusOneSync}>+1 in Sync</button>

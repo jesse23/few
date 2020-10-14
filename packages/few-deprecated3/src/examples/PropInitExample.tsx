@@ -7,11 +7,11 @@ const PositionComponent = defineComponent( {
         sum: x + y
     } ),
     // overwrite x is useless since it is prop, y is from prop directly
-    view: ( { x, y, sum } ): JSX.Element =>
+    view: ( { x, y, sum } ) =>
         <div>X: {x}, Y: {y}, X+Y: {sum}</div>
 } );
 
 export default defineComponent( {
     name: 'PropInitExample',
-    view: (): JSX.Element => <PositionComponent x={3} y={4} />
+    view: () => <PositionComponent x={3} y={4} />
 } );

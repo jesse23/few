@@ -1,7 +1,7 @@
 import { defineComponent } from '@/utils';
 
 export default defineComponent( {
-    name: 'ViewExample',
+    name: 'FragmentExample',
     view: model =>
         <>
             <div>Hello </div>
