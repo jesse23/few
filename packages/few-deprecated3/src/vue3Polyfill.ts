@@ -67,7 +67,7 @@ const h: VDom = {
         return createElement( type, props, childrenN );
     },
     createComponent: component => defineComponent( {
-        name: 'Hi',
+        name: component.name,
         inheritAttrs: false,
         // in Vue render is denied as loose as 'Function'
         // in typeScript by default JSX returns JSX.Element
@@ -84,36 +84,40 @@ const h: VDom = {
         },
         */
         setup: ( _: never, context: SetupContext ): RenderFunction<Props> => {
-            const model = isStatefulComponent( component ) ? component.init( context.attrs ) : {};
+            let initRes = isStatefulComponent( component ) ? component.init( context.attrs ) : {};
 
+            const model = reactive( isPromise( initRes ) ? {} : initRes );
+
+            const dispatch = ( { path, value }: DispatchInput ): void => void
+                lodashSet( model, path, value );
+
+            const actions = {} as Props;
+
+            const getState = (): Props => ( {
+                ...model,
+                dispatch,
+                ...actions,
+                ...context.attrs
+            } );
+
+            Object.assign( actions, isStatefulComponent( component ) && component.actions ? Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => {
+                sum[key] = ( ...args: any[] ): void => fn( getState(), ...args );
+                return sum;
+            }, {} as Props ) : {} );
+
+            /*
             const vm = {
-                model: reactive( isPromise( model ) ? {} : model ),
-                actions: isStatefulComponent( component ) && component.actions ? Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => {
-                    sum[key] = ( ...args: any[] ): void => fn( vm.getState(), ...args );
-                    return sum;
-                }, {} as Props ) : {},
-                getState: (): Props => {
-                    return {
-                        ...vm.model,
-                        dispatch: vm.dispatch,
-                        ...vm.actions,
-                        ...context.attrs
-                    };
-                },
-                dispatch: ( { path, value }: DispatchInput ): void => {
-                    lodashSet( vm.model, path, value );
-                }
-                /*
                 ref: ( ( path?: string ) => ( el: HTMLElement ): void => {
                     component.ref[path || 'el'] = el;
                 } ) as Ref,
-                */
-            };
+            } as Props;
+            */
 
             onMounted( () => {
-                if ( isPromise( model ) ) {
-                    Promise.resolve( model ).then( model => {
-                        Object.assign( vm.model, model );
+                if ( isPromise( initRes ) ) {
+                    Promise.resolve( initRes ).then( m => {
+                        Object.assign( model, m );
+                        initRes = null;
                     } ).then( () => {
                         // componentDef.mount && componentDef.mount( component );
                     } );
@@ -125,18 +129,12 @@ const h: VDom = {
                 // updateWatchers( component );
             } );
 
-            onBeforeUnmount( () => component.unmount && component.unmount( vm.model ) );
+            onBeforeUnmount( () => component.unmount && component.unmount( getState() ) );
 
             return (): JSX.Element => {
-                // update props
-                /*
-                Object.assign( vm.model, actions );
-                Object.assign( vm.model, context.attrs );
-                */
-
                 // component.children = context.slots.default && context.slots.default();
                 // component.children = context.attrs.children;
-                return component.view( vm.getState() );
+                return component.view( getState() );
             };
         }
     } )

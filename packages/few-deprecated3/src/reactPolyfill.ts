@@ -70,15 +70,18 @@ const useScope = ( component: Component<Props>, props: Props, store: Store ): St
 
     const actionsRef = useRef( null );
 
+    // store.dispatch must be stable
+    const dispatch = store.dispatch;
+
     // scope
     const scopeRef = useRef( {
         getState: (): Props => ( {
             ...store.getState(),
-            dispatch: store.dispatch,
+            dispatch,
             ...actionsRef.current,
             ...propRef.current
         } as Props ),
-        dispatch: store.dispatch
+        dispatch
     } );
 
     // action
@@ -94,7 +97,7 @@ const useScope = ( component: Component<Props>, props: Props, store: Store ): St
     return scopeRef.current;
 };
 
-const useAsyncInit = ( useStoreFn: UseStoreFn, initFn: InitFn ): [Props, boolean] => {
+const useStoreAsync = ( useStoreFn: UseStoreFn, initFn: InitFn ): [Props, boolean] => {
     const initRef = useRef( {
         done: false,
         pending: null as Promise<Props>
@@ -142,7 +145,7 @@ const h: VDom = {
     },
     createComponent: component => Object.assign( ( props: Props ): JSX.Element => {
         // async init
-        const [ scope, done ] = useAsyncInit(
+        const [ scope, done ] = useStoreAsync(
             fn => useScope( component, props, useStore( fn ) ),
             () => isStatefulComponent( component ) ? component.init( props ) : {}
         );
