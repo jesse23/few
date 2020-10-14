@@ -17,6 +17,7 @@ import {
     Fragment,
     reactive,
     onMounted,
+    onBeforeUnmount,
     h as createElement,
     createApp as createVueApp
 } from 'vue';
@@ -120,6 +121,8 @@ const h: VDom = {
                 // for onmount/init
                 // updateWatchers( component );
             } );
+
+            onBeforeUnmount( () => component.unmount && component.unmount( vm.model ) );
 
             return (): JSX.Element => {
                 // update props

@@ -53,8 +53,7 @@ const useStore = ( fn: InitFn ): Store => {
         lastState.current = path ? lodashFpSet( path, value, model as never ) : value
     ).current;
 
-    const [ model, dispatch ] = useReducer( reducer, null, fn );
-    lastState.current = model;
+    const [ _, dispatch ] = useReducer( reducer, null, () => lastState.current = fn() );
 
     const storeRef = useRef( {
         getState: () => lastState.current,
@@ -150,10 +149,8 @@ const h: VDom = {
 
         // onMount
         useInit( () => {
-            // componentDef.mount && componentDef.mount( component );
-            return (): void => {
-                // componentDef.unmount && componentDef.unmount( component );
-            };
+            // component.mount && component.mount( component );
+            return (): void => component.unmount && component.unmount( scope.getState() );
         }, done );
 
         return component.view( scope.getState() );
