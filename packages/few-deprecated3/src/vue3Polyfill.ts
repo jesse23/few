@@ -88,24 +88,27 @@ const h: VDom = {
 
             const vm = {
                 model: reactive( isPromise( model ) ? {} : model ),
-                actions: {}
+                actions: isStatefulComponent( component ) && component.actions ? Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => {
+                    sum[key] = ( ...args: any[] ): void => fn( vm.getState(), ...args );
+                    return sum;
+                }, {} as Props ) : {},
+                getState: (): Props => {
+                    return {
+                        ...vm.model,
+                        dispatch: vm.dispatch,
+                        ...vm.actions,
+                        ...context.attrs
+                    };
+                },
+                dispatch: ( { path, value }: DispatchInput ): void => {
+                    lodashSet( vm.model, path, value );
+                }
                 /*
                 ref: ( ( path?: string ) => ( el: HTMLElement ): void => {
                     component.ref[path || 'el'] = el;
                 } ) as Ref,
                 */
             };
-
-            const dispatch = ( { path, value }: DispatchInput ): void => {
-                lodashSet( vm.model, path, value );
-            };
-
-            const actions = isStatefulComponent( component ) && component.actions ? Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => {
-                sum[key] = ( ...args: any[] ): void => fn( vm.model, ...args );
-                return sum;
-            }, {} as Props ) : {};
-
-            vm.model.dispatch = dispatch;
 
             onMounted( () => {
                 if ( isPromise( model ) ) {
@@ -126,12 +129,14 @@ const h: VDom = {
 
             return (): JSX.Element => {
                 // update props
+                /*
                 Object.assign( vm.model, actions );
                 Object.assign( vm.model, context.attrs );
+                */
 
                 // component.children = context.slots.default && context.slots.default();
                 // component.children = context.attrs.children;
-                return component.view( vm.model );
+                return component.view( vm.getState() );
             };
         }
     } )
