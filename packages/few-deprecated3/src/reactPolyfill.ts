@@ -44,7 +44,14 @@ const useInit = ( fn: Function, initialized = true ): void => {
 };
 
 
-// https://transang.me/get-state-callback-with-usereducer/
+/**
+ * useStore hook to provide redux like API.
+ * NOTE: return object is not stable but the API is stable.
+ * https://transang.me/get-state-callback-with-usereducer/
+ *
+ * @param fn initialization function
+ * @returns Store object
+ */
 const useStore = ( fn: InitFn ): Store => {
     const lastState = useRef( null );
 
@@ -55,75 +62,86 @@ const useStore = ( fn: InitFn ): Store => {
 
     const [ _, dispatch ] = useReducer( reducer, null, () => lastState.current = fn() );
 
-    const storeRef = useRef( {
-        getState: () => lastState.current,
-        dispatch
-    } );
+    const getState = useRef( () => lastState.current ).current;
 
-    return storeRef.current;
+    return { getState, dispatch };
 };
 
-const useScope = ( component: Component<Props>, props: Props, store: Store ): Store => {
-    // ref to prop for action use case
+/**
+ * useScope hook to provide action and other decl syntax support
+ * NOTE: return object is not stable but the API is stable.
+ * @param component component definition
+ * @param props input properties
+ * @param store core store object
+ * @returns scope object
+ */
+const useScope = ( component: Component<Props>, props: Props, { getState, dispatch }: Store ): Store => {
+    // ref to prop for callback closure
+    // TODO: this may still have async side effect. The 2 async layer, UI/VDom and JS Engine Promise, they are
+    // still not in harmony.
     const propRef = useRef( null );
     propRef.current = props;
 
     const actionsRef = useRef( null );
 
-    // store.dispatch must be stable
-    const dispatch = store.dispatch;
-
     // scope
-    const scopeRef = useRef( {
-        getState: (): Props => ( {
-            ...store.getState(),
-            dispatch,
-            ...actionsRef.current,
-            ...propRef.current
-        } as Props ),
-        dispatch
-    } );
+    const getScope = useRef( () => ( {
+        ...getState(),
+        dispatch,
+        ...actionsRef.current,
+        ...propRef.current
+    } ) ).current;
 
-    // action
+    // action initialization
     if ( !actionsRef.current ) {
         actionsRef.current = isStatefulComponent( component ) && component.actions ? Object.entries( component.actions ).reduce( ( sum, [ key, fn ] ) => ( {
             ...sum,
             [key]: ( ...args: any[] ): void => {
-                fn( scopeRef.current.getState(), ...args );
+                fn( getScope(), ...args );
             }
         } ), {} as Props ) : {};
     }
 
-    return scopeRef.current;
+    return {
+        // keep API consistent
+        getState: getScope,
+        dispatch
+    };
 };
 
-const useStoreAsync = ( useStoreFn: UseStoreFn, initFn: InitFn ): [Props, boolean] => {
+const useAsyncInitFn = ( initFn: InitFn ): [ InitFn, ( store: Store ) => [Props, boolean] ] => {
     const initRef = useRef( {
         done: false,
         pending: null as Promise<Props>
     } );
 
-    const store = useStoreFn( () => {
-        const result = initFn();
-        if ( isPromise( result ) ) {
-            initRef.current.pending = result;
+    const asyncInitFn: InitFn = (): Props => {
+        const initRes = initFn();
+        if ( isPromise( initRes ) ) {
+            initRef.current.pending = initRes;
             return {};
         }
         initRef.current.done = true;
-        return result;
-    } );
+        return initRes;
+    };
 
-    useInit( () => {
-        // all API be consistent
-        Promise.resolve( initRef.current.pending ).then( model => {
-            // do Object.assign for mutation
-            initRef.current.pending = null;
-            initRef.current.done = true;
-            store.dispatch( { path: '', value: model } );
-        } );
-    }, Boolean( initRef.current.pending ) );
+    const useAsyncInit = ( store: Store ): [Props, boolean] => {
+        useInit( () => {
+            // all API be consistent
+            Promise.resolve( initRef.current.pending ).then( model => {
+                initRef.current.pending = null;
+                initRef.current.done = true;
+                store.dispatch( { path: '', value: model } );
+            } );
+        }, Boolean( initRef.current.pending ) );
 
-    return [ store, initRef.current.done ];
+        return [ store, initRef.current.done ];
+    };
+
+    return [
+        asyncInitFn,
+        useAsyncInit
+    ];
 };
 
 const h: VDom = {
@@ -145,10 +163,11 @@ const h: VDom = {
     },
     createComponent: component => Object.assign( ( props: Props ): JSX.Element => {
         // async init
-        const [ scope, done ] = useStoreAsync(
-            fn => useScope( component, props, useStore( fn ) ),
+        const [ initFn, useAsyncInit ] = useAsyncInitFn(
             () => isStatefulComponent( component ) ? component.init( props ) : {}
         );
+
+        const [ scope, done ] = useAsyncInit( useScope( component, props, useStore( initFn ) ) );
 
         // onMount
         useInit( () => {
