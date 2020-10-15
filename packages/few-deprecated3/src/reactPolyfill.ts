@@ -182,6 +182,25 @@ const h: VDom = {
             return (): void => component.unmount && component.unmount( scope.getState() );
         }, done );
 
+        // watchers
+        const watching = useRef( [] );
+        useEffect( () => {
+            if ( done && isStatefulComponent( component ) ) {
+                if ( component.watchers ) {
+                    const watcherRes = component.watchers( scope.getState() );
+                    const lastRes = watching.current;
+                    watcherRes.forEach( ( curr, idx ) => {
+                        const isDefined = lastRes.length > 0;
+                        const last = lastRes.length > idx ? lastRes[idx] : undefined;
+                        if ( !isDefined || last.watch !== curr.watch ) {
+                            curr.action();
+                        }
+                    } );
+                    watching.current = watcherRes;
+                }
+            }
+        } );
+
         return component.view( scope.getState() );
     }, {
         displayName: component.name

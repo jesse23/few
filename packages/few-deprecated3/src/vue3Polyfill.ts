@@ -3,20 +3,23 @@ import type {
     Ref,
     VDom,
     Props,
+    Watcher,
     DispatchInput,
     RenderFunction,
     CreateAppFunction
 } from '@/types';
 
-import type {
+import {
     Component as VueComponent,
     VNodeArrayChildren,
-    SetupContext
+    SetupContext,
+    onUpdated
 } from 'vue';
 
 import {
     Fragment,
     reactive,
+    watch,
     onMounted,
     onBeforeUnmount,
     h as createElement,
@@ -113,6 +116,26 @@ const h: VDom = {
             }, {} as Props ) : {} );
 
 
+            const watching = {
+                current: [] as Watcher[]
+            };
+
+            const updateWatchers = (): void => {
+                if ( isStatefulComponent( component ) && component.watchers ) {
+                    const watcherRes = component.watchers( getState() );
+                    const lastRes = watching.current;
+                    watching.current = watcherRes;
+                    watcherRes.forEach( ( curr, idx ) => {
+                        const isDefined = lastRes.length > 0;
+                        const last = lastRes.length > idx ? lastRes[idx] : undefined;
+                        if ( !isDefined || last.watch !== curr.watch ) {
+                            curr.action();
+                        }
+                    } );
+                }
+            };
+
+
             /*
             const vm = {
                 ref: ( ( path?: string ) => ( el: HTMLElement ): void => {
@@ -134,10 +157,26 @@ const h: VDom = {
                 }
 
                 // for onmount/init
-                // updateWatchers( component );
+                updateWatchers();
             } );
 
             onBeforeUnmount( () => component.unmount && component.unmount( getState() ) );
+
+            // for model change to trigger digest or parent attr direct change
+            onUpdated( updateWatchers );
+
+            // for model change not trigger digest or change inside parent attr
+            watch( () => {
+                /*
+                if( component.props.prop && component.props.prop.color ) {
+                    return component.props.prop.color;
+                }
+                */
+                return isStatefulComponent( component ) && component.watchers && component.watchers( getState() );
+            }, ( /*oldVal, newVal*/ ) => {
+                updateWatchers();
+                // console.log( `${oldVal} => ${newVal}` );
+            } );
 
             return (): JSX.Element => {
                 // component.children = context.slots.default && context.slots.default();

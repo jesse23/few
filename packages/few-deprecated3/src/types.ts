@@ -33,6 +33,24 @@ export interface RenderFunction<T> {
     displayName?: string;
 }
 
+// Action Def
+export type ActionDef<T> = ( vm: T, ...args: any[] ) => void
+
+export type ActionHandler = ( ...args: any[] ) => void
+
+export interface ActionDefMap<T> {
+    [key: string]: ActionDef<T>;
+}
+
+// Watch
+export interface Watcher {
+    action: ( event?: unknown ) => void;
+    when?: boolean;
+    watch?: unknown;
+}
+
+export type WatchersDef<T> = ( vm: T, ...args: any[] ) => Watcher[]
+
 export interface StatelessComponentDef<T> {
     name: string;
     view?: RenderFunction<T>;
@@ -43,21 +61,13 @@ export interface StatelessComponentDef<T> {
     unmount?: ActionDef<T>;
 }
 
-// Action Def
-export type ActionDef<T> = ( vm: T, ...args: any[] ) => void
-
-export type ActionHandler = ( ...args: any[] ) => void
-
-export interface ActionDefMap<T> {
-    [key: string]: ActionDef<T>;
-}
-
 export interface StatefulComponentDef<T, M> extends StatelessComponentDef<M> {
     init: ( props: T ) => M|Promise<M>;
     view?: RenderFunction<T&M>;
     actions?: ActionDefMap<T&M>;
     mount?: ActionDef<T&M>;
     unmount?: ActionDef<T&M>;
+    watchers?: WatchersDef<T&M>;
 }
 
 // export type Component<T, M=Props> = ComponentDef<T, M> & RenderFunction<T>;

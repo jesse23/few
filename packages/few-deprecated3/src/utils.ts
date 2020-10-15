@@ -51,8 +51,8 @@ export const isComponent = ( type: string | ComponentDef<never> ): type is Compo
  * @param type component type
  * @returns true if type is component def.
  */
-export const isStatefulComponent = <T>( type: string | ComponentDef<T> ): type is StatefulComponentDef<T, never> => {
-    const component = type as StatefulComponentDef<never, never>;
+export const isStatefulComponent = <T, M>( type: string | ComponentDef<T> ): type is StatefulComponentDef<T, M> => {
+    const component = type as StatefulComponentDef<T, M>;
     return component &&
         // typeof component === 'object' &&
         typeof component.init === 'function';
