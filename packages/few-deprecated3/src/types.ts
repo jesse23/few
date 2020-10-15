@@ -1,7 +1,7 @@
 /**
  * Virtual DOM
  */
-type CreateElementFn = ( type: string | Component<Props>, props?: Props | null, ...children: JSX.Element[] ) => JSX.Element;
+type CreateElementFn = ( type: string | Component<Props>, props?: Props | null, ...children: any[] ) => JSX.Element;
 export interface VDom {
     type: string;
     createElement: CreateElementFn;
