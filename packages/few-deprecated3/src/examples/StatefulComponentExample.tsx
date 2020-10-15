@@ -1,4 +1,4 @@
-import { defineComponent } from '../../src/utils';
+import { defineComponent } from '@/vDom';
 
 export default defineComponent( {
     name: 'StatefulComponent',

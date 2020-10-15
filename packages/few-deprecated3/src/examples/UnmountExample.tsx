@@ -1,7 +1,5 @@
-import {
-    defineComponent,
-    wait
-} from '@/utils';
+import { defineComponent } from '@/vDom';
+import { wait } from '@/utils';
 
 export const mockServer = {
     _server: {} as { [key: string]: string },

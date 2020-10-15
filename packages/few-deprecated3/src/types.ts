@@ -7,6 +7,7 @@ export interface VDom {
     createElement: CreateElementFn;
     createComponent: ( component: Component<Props> ) => { ( props: Props ): JSX.Element };
     Fragment: Function;
+    await: Function;
 }
 
 export type H = CreateElementFn & VDom;

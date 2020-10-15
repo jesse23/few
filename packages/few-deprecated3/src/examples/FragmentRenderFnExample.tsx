@@ -1,5 +1,4 @@
-import { h } from '@/vDom';
-import { defineComponent } from '@/utils';
+import { h, defineComponent } from '@/vDom';
 
 export default defineComponent( {
     name: 'ViewExample',

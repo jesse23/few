@@ -1,8 +1,5 @@
-import type {
-    ActionHandler
-} from '@/types';
-
-import { defineComponent } from '@/utils';
+import type { ActionHandler } from '@/types';
+import { defineComponent } from '@/vDom';
 
 interface Position {
     x: number;

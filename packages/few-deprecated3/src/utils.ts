@@ -5,32 +5,6 @@ import type {
 } from '@/types';
 
 /**
- * Wrapper function for JSX
- * @param componentDef componentDef
- * @returns componentDef
- *
- * Below are several different approach to achieve the functionality.
- * see https://stackoverflow.com/questions/41875350/how-to-create-a-generic-type-for-an-arrow-function-in-typescript
- *
- * - function approach
- *   export function defineComponent<T>( componentDef: ComponentDef<T> ): Component<T> {
- *       return componentDef as Component<T>;
- *   }
- *
- * - function variable approach
- *   export const defineComponent = function <T>( componentDef: ComponentDef<T> ): Component<T> {
- *       return componentDef as Component<T>;
- *   };
- *
- * - function type approach
- *   type DefineComponentFn = <T>( componentDef: ComponentDef<T> ) => Component<T>;
- *   export const defineComponent:DefineComponentFn = <T>( componentDef: ComponentDef<T> ) => ( componentDef as Component<T> );
- *   // or
- *   export const defineComponent:DefineComponentFn = ( componentDef: never ) => componentDef;
- */
-export const defineComponent: DefineComponentFn = ( componentDef: never ) => componentDef;
-
-/**
  * check if type is Component
  * @param type component type
  * @returns true if type is component def.

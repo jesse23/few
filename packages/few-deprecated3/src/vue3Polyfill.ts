@@ -9,11 +9,10 @@ import type {
     CreateAppFunction
 } from '@/types';
 
-import {
+import type {
     Component as VueComponent,
     VNodeArrayChildren,
-    SetupContext,
-    onUpdated
+    SetupContext
 } from 'vue';
 
 import {
@@ -22,13 +21,14 @@ import {
     watch,
     onMounted,
     onBeforeUnmount,
+    onUpdated,
     h as createElement,
     createApp as createVueApp
 } from 'vue';
 
 import lodashSet from 'lodash/set';
 
-import { setH } from '@/vDom';
+import { setH, AsyncH } from '@/vDom';
 
 import {
     isComponent,
@@ -37,11 +37,12 @@ import {
 } from '@/utils';
 
 // VueComponent wrapper
-export const defineComponent: { ( componentDef: VueComponent ): RenderFunction<Props> } = ( componentDef: never ) => componentDef;
+const defineComponent: { ( componentDef: VueComponent ): RenderFunction<Props> } = ( componentDef: never ) => componentDef;
 
 const h: VDom = {
     type: 'vue',
     Fragment,
+    await: ( fn: Function ): JSX.Element => h.createElement( AsyncH, { fn } ),
     createElement: ( type, props?, ...childArr ) => {
         // align on input behavior with react
         if ( type === 'input' && props.onChange ) {

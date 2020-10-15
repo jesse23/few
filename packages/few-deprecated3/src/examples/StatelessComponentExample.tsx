@@ -1,4 +1,4 @@
-import { defineComponent } from '@/utils';
+import { defineComponent } from '@/vDom';
 
 // object way - react has similar approach in createReactClass
 // https://zh-hans.reactjs.org/docs/react-without-es6.html

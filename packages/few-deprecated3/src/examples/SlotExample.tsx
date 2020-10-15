@@ -1,4 +1,4 @@
-import { defineComponent } from '@/utils';
+import { defineComponent } from '@/vDom';
 
 const MyButton = defineComponent( {
     name: 'MyButton',

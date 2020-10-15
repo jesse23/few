@@ -21,7 +21,7 @@ import type {
     Component
 } from '@/types';
 
-import { setH } from '@/vDom';
+import { setH, AsyncH } from '@/vDom';
 
 import {
     isComponent,
@@ -153,6 +153,7 @@ const useAsyncInitFn = ( initFn: InitFn ): [InitFn, ( store: Store ) => [Props, 
 const h: VDom = {
     type: 'react',
     Fragment,
+    await: ( fn: Function ): JSX.Element => h.createElement( AsyncH, { fn } ),
     createElement: ( type, props?, ...children ) => {
         if ( !type ) {
             return createElement( Fragment, props, ...children );

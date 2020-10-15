@@ -1,5 +1,4 @@
-import { defineComponent } from '@/utils';
-import { h } from '@/vDom';
+import { h, defineComponent } from '@/vDom';
 
 export default defineComponent( {
     name: 'NewKeyDispatchExample',
