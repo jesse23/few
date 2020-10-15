@@ -10,7 +10,7 @@ const entryElem = document.getElementById( 'main-entrypoint' );
 import { createApp as createReactApp } from '@/reactPolyfill';
 import { createApp as createVueApp } from '@/vue3Polyfill';
 
-import Example from '@/examples/InputExample';
+import Example from '@/examples/PropUpdateExample';
 
 // about
 route.register( {

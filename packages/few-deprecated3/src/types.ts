@@ -46,6 +46,8 @@ export interface StatelessComponentDef<T> {
 // Action Def
 export type ActionDef<T> = ( vm: T, ...args: any[] ) => void
 
+export type ActionHandler = ( ...args: any[] ) => void
+
 export interface ActionDefMap<T> {
     [key: string]: ActionDef<T>;
 }
