@@ -13,6 +13,7 @@ import lodashFpSet from 'lodash/fp/set';
 
 import type {
     App,
+    Ref,
     VDom,
     Props,
     DispatchInput,
@@ -84,10 +85,15 @@ const useScope = ( component: Component<Props>, props: Props, { getState, dispat
 
     const actionsRef = useRef( null );
 
+    const ref = useRef( ( ( path?: string ) => ( el: HTMLElement ): void => {
+        ref[path || 'el'] = el;
+    } ) as Ref ).current;
+
     // scope
     const getScope = useRef( () => ( {
         ...getState(),
         dispatch,
+        ref,
         ...actionsRef.current,
         ...propRef.current
     } ) ).current;
@@ -109,7 +115,7 @@ const useScope = ( component: Component<Props>, props: Props, { getState, dispat
     };
 };
 
-const useAsyncInitFn = ( initFn: InitFn ): [ InitFn, ( store: Store ) => [Props, boolean] ] => {
+const useAsyncInitFn = ( initFn: InitFn ): [InitFn, ( store: Store ) => [Props, boolean]] => {
     const initRef = useRef( {
         done: false,
         pending: null as Promise<Props>
@@ -168,6 +174,7 @@ const h: VDom = {
         );
 
         const [ scope, done ] = useAsyncInit( useScope( component, props, useStore( initFn ) ) );
+
 
         // onMount
         useInit( () => {

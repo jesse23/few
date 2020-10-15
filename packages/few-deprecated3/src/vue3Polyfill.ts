@@ -1,5 +1,6 @@
 import type {
     App,
+    Ref,
     VDom,
     Props,
     DispatchInput,
@@ -92,11 +93,16 @@ const h: VDom = {
             const dispatch = ( { path, value }: DispatchInput ): void => void
                 lodashSet( model, path, value );
 
+            const ref = ( ( path?: string ) => ( el: HTMLElement ): void => {
+                ref[path || 'el'] = el;
+            } ) as Ref;
+
             const actions = {} as Props;
 
             const getState = (): Props => ( {
                 ...model,
                 dispatch,
+                ref,
                 ...actions,
                 ...context.attrs
             } );
@@ -105,6 +111,7 @@ const h: VDom = {
                 sum[key] = ( ...args: any[] ): void => fn( getState(), ...args );
                 return sum;
             }, {} as Props ) : {} );
+
 
             /*
             const vm = {

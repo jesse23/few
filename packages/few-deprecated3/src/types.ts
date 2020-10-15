@@ -74,3 +74,8 @@ export interface DispatchInput {
     path: string;
     value: unknown;
 }
+
+export interface Ref {
+    ( key: string ): ( el: HTMLElement ) => void;
+    [key: string]: HTMLElement;
+}
