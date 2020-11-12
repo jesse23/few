@@ -1,6 +1,6 @@
 import type {
+    Primitive,
     ComponentDef,
-    DefineComponentFn,
     StatefulComponentDef
 } from '@/types';
 
@@ -49,3 +49,17 @@ export const isPromise = ( value: unknown ): value is Promise<unknown> => {
  */
 export const wait = ( elapsed = 0 ): Promise<{}> =>
     new Promise( resolve => setTimeout( () => resolve( null ), elapsed ) );
+
+/**
+ * Get input value from input element
+ * @param elem input element
+ * @returns input value as either number, string or boolean
+ */
+export const getInputValue = ( elem: HTMLInputElement ): Primitive => {
+    if ( elem.type === 'checkbox' ) {
+        return elem.checked;
+    } else if ( elem.type === 'number' ) {
+        return Number( elem.value );
+    }
+    return elem.value;
+};

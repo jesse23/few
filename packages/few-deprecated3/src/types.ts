@@ -23,6 +23,12 @@ export interface App {
 export type CreateAppFunction<T=Props> = ( componentDef: Component<T> ) => App;
 
 /**
+ * primitive type in store
+ */
+export type Primitive = boolean | number | string;
+
+
+/**
  * Component
  */
 export interface Props {
