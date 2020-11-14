@@ -69,7 +69,7 @@ export interface StatelessComponentDef<T> {
 }
 
 export interface StatefulComponentDef<T, M> extends StatelessComponentDef<M> {
-    init: ( props: T ) => M|Promise<M>;
+    init: ( props?: T ) => M|Promise<M>;
     view?: RenderFunction<T&M>;
     actions?: ActionDefMap<T&M>;
     mount?: ActionDef<T&M>;
@@ -79,11 +79,12 @@ export interface StatefulComponentDef<T, M> extends StatelessComponentDef<M> {
 
 // export type Component<T, M=Props> = ComponentDef<T, M> & RenderFunction<T>;
 export type ComponentDef<T, M=Props> = StatefulComponentDef<T, M> | StatelessComponentDef<T>;
-export type Component<T, M=Props> = ComponentDef<T, M> & RenderFunction<T>;
+export type StatefulComponent<T, M=Props> = StatefulComponentDef<T, M> & RenderFunction<T>;
+export type StatelessComponent<T, M=Props> = StatelessComponentDef<T> & RenderFunction<T>;
 
 export interface DefineComponentFn {
-    <T extends Props, M=Props>( componentDef: StatefulComponentDef<T, M> ): Component<T, M>;
-    <T extends Props>( componentDef: StatelessComponentDef<T> ): Component<T>;
+    <T extends Props, M=Props>( componentDef: StatefulComponentDef<T, M> ): StatefulComponent<T, M>;
+    <T extends Props>( componentDef: StatelessComponentDef<T> ): StatelessComponent<T>;
 }
 
 // dispatch input

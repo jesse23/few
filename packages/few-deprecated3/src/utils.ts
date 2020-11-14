@@ -1,6 +1,7 @@
 import type {
     Primitive,
     ComponentDef,
+    DispatchInput,
     StatefulComponentDef
 } from '@/types';
 
@@ -63,3 +64,9 @@ export const getInputValue = ( elem: HTMLInputElement ): Primitive => {
     }
     return elem.value;
 };
+
+export const mapDispatch = ( dispatch: Function, scope: string ) =>
+    ( { path, value }: DispatchInput ): void => dispatch( {
+        path: `${scope}.${path}`,
+        value
+    } );
