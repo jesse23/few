@@ -1,7 +1,7 @@
 {
-    "name": "few",
+    "name": "@few/core",
     "version": "1.0.0",
-    "description": "FEW UI Framework",
+    "description": "FEW UI Framework Core",
     "main": "public/bundle.js",
     "repository": {
         "type": "git",

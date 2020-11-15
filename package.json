@@ -1,6 +1,10 @@
 {
   "name": "few",
   "private": true,
+  "scripts": {
+    "start": "cd packages/core && npm run start",
+    "test": "cd packages/core && npm run test"
+  },
   "devDependencies": {
     "lerna": "^3.22.1"
   }
