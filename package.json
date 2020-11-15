@@ -5,6 +5,9 @@
     "start": "cd packages/core && npm run start",
     "test": "cd packages/core && npm run test"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
     "lerna": "^3.22.1"
   }
