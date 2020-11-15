@@ -11,7 +11,8 @@ import {
     reactive,
     onUpdated,
     watch,
-    SetupContext
+    SetupContext,
+    defineComponent
 } from 'vue';
 
 describe( 'vue3 features', () => {
@@ -25,7 +26,7 @@ describe( 'vue3 features', () => {
         };
 
         // child component
-        const Child = {
+        const Child = defineComponent( {
             name: 'Widget',
             inheritAttrs: false,
             setup: ( _: never, context: SetupContext ): { (): JSX.Element } => {
@@ -43,9 +44,9 @@ describe( 'vue3 features', () => {
 
                 return (): JSX.Element => h( 'div', null, 'hi' );
             }
-        };
+        } );
 
-        const Parent = {
+        const Parent = defineComponent( {
             name: 'Example',
             inheritAttrs: false,
             setup: (): { (): JSX.Element } => {
@@ -64,7 +65,7 @@ describe( 'vue3 features', () => {
                    obj: model.obj
                } );
             }
-        };
+        } );
 
         const containerElem = fixture.container;
         createVueApp( Parent ).mount( containerElem );

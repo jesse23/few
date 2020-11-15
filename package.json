@@ -2,6 +2,8 @@
   "name": "few",
   "private": true,
   "scripts": {
+    "lint": "cd packages/core && npm run lint",
+    "build": "cd packages/core && npm run build",
     "start": "cd packages/core && npm run start",
     "test": "cd packages/core && npm run test"
   },

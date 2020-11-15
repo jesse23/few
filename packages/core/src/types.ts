@@ -81,6 +81,7 @@ export interface StatefulComponentDef<T, M> extends StatelessComponentDef<M> {
 export type ComponentDef<T, M=Props> = StatefulComponentDef<T, M> | StatelessComponentDef<T>;
 export type StatefulComponent<T, M=Props> = StatefulComponentDef<T, M> & RenderFunction<T>;
 export type StatelessComponent<T, M=Props> = StatelessComponentDef<T> & RenderFunction<T>;
+export type Component<T, M=Props> = StatefulComponent<T, M> | StatelessComponent<T, M>;
 
 export interface DefineComponentFn {
     <T extends Props, M=Props>( componentDef: StatefulComponentDef<T, M> ): StatefulComponent<T, M>;
