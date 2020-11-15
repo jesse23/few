@@ -36,7 +36,6 @@
         "@typescript-eslint/eslint-plugin": "^2.31.0",
         "@typescript-eslint/parser": "^2.31.0",
         "babel-plugin-auto-import": "^1.1.0",
-        "commitizen": "^4.1.2",
         "eslint": "^6.8.0",
         "eslint-plugin-react": "^7.19.0",
         "eslint-plugin-react-hooks": "^4.0.4",
@@ -57,7 +56,6 @@
     },
     "scripts": {
         "b": "npm run build",
-        "c": "git add -A && git-cz",
         "d": "npm start",
         "lint": "npm run eslint && npm run tslint",
         "build": "rollup -c",
@@ -65,10 +63,5 @@
         "tslint": "tsc --noEmit",
         "eslint": "eslint src test --no-error-on-unmatched-pattern --ext js,jsx,ts,tsx",
         "test": "jest"
-    },
-    "config": {
-        "commitizen": {
-            "path": "cz-conventional-changelog"
-        }
     }
 }
