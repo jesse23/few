@@ -5,14 +5,25 @@ export const enum STATE {
     DONE = 3
 }
 
-export interface Watcher {
-    register: ( onStart: () => void, onDone: () => void ) => void;
-    unregister: () => void;
+export interface Observer {
+    onStart: () => void;
+    onDone: () => void;
+    onComplete: () => void;
+}
+
+export interface Observable {
+    subscribe: ( proc: Observer ) => void;
+    unsubscribe: ( proc: Observer ) => void;
 }
 
 export interface Profiler {
-    addWatcher: ( watcher: Watcher ) => void;
+    addObservable: ( ob: Observable ) => void;
     profile: () => Promise<number>;
     readonly state: STATE;
     readonly active: boolean;
+}
+
+export interface LegacyBrowserWindow {
+    WebKitMutationObserver?: typeof MutationObserver;
+    MozMutationObserver?: typeof MutationObserver;
 }
