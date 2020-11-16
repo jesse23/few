@@ -1,5 +1,6 @@
 /* eslint-env jest */
-import { STATE, BUSY_INTERVAL, createProfiler, now } from '@/profiler';
+import { STATE } from '@/types';
+import { BUSY_INTERVAL, createProfiler, now } from '@/profiler';
 
 // JS timer is inaccurate since it is passive, put a TOLERANCE for test verification
 const TOLERANCE = 50;
@@ -17,20 +18,26 @@ describe( 'Test profiler', () => {
 
         // wait -> done
         const elapsed = await promise;
-        const realElapesd = now() - startTime;
+        const realElapsed = now() - startTime;
         expect( profiler.state ).toEqual( STATE.DONE );
         expect( profiler.active ).toEqual( false );
 
         expect( elapsed ).toBeGreaterThan( 0 );
         expect( elapsed ).toBeLessThan( TOLERANCE );
 
-        expect( realElapesd ).toBeGreaterThan( 0 + BUSY_INTERVAL );
-        expect( realElapesd ).toBeLessThan( TOLERANCE + BUSY_INTERVAL );
+        expect( realElapsed ).toBeGreaterThan( 0 + BUSY_INTERVAL );
+        expect( realElapsed ).toBeLessThan( TOLERANCE + BUSY_INTERVAL );
+    } );
 
-        /*
-        const promise = profiler.profile();
-        expect( elapsed ).toBeGreaterThan( 0 );
-        expect( elapsed ).toBeLessThan( 10 );
-        */
+    it( 'Verify multiple profile will return the same promise', async() =>{
+        const profiler = createProfiler();
+
+        const promise1 = profiler.profile();
+        const promise2 = profiler.profile();
+        expect( promise1 ).toBe( promise2 );
+        expect( await promise1 ).toEqual( await promise2 );
+
+        const promise3 = profiler.profile();
+        expect( promise1 ).toBe( promise3 );
     } );
 } );

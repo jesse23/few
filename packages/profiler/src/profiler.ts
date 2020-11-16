@@ -1,26 +1,34 @@
+import { STATE } from '@/types';
 
 /**
  * Get current timestamp
  *
  * @returns current timestamp as number
  */
-export const now = () => {
+export const now = (): number => {
     if ( window && window.performance ) {
         return window.performance.now();
     }
     return Date.now();
 };
 
+/**
+ * Default busy interval
+ */
 export const BUSY_INTERVAL = 200;
 
+/*
 export const STATE = {
     IDLE: Symbol( 'IDLE' ),
     HOLD: Symbol( 'HOLD' ),
     WAIT: Symbol( 'WAIT' ),
     DONE: Symbol( 'DONE' )
 };
+*/
+
 
 const _globalSetTimeout = setTimeout;
+
 const _globalClearTimeout = clearTimeout;
 
 export const createProfiler = ( interval = BUSY_INTERVAL ): any => {
@@ -51,7 +59,7 @@ export const createProfiler = ( interval = BUSY_INTERVAL ): any => {
             let timeoutID = _globalSetTimeout( complete, interval );
 
             let _counter = 0;
-            const _onStart = () => {
+            const _onStart = (): void => {
                 if ( _counter === 0 ) {
                     _globalClearTimeout( timeoutID );
                     timeoutID = null;
@@ -62,7 +70,7 @@ export const createProfiler = ( interval = BUSY_INTERVAL ): any => {
                 _counter++;
             };
 
-            const _onDone = () => {
+            const _onDone = (): void => {
                 _counter = _counter > 0 ? _counter - 1 : 0;
                 if( _counter === 0 ) {
                     _globalClearTimeout( timeoutID );
@@ -84,10 +92,10 @@ export const createProfiler = ( interval = BUSY_INTERVAL ): any => {
     };
 
     return {
-        get state() {
+        get state(): STATE {
             return _state;
         },
-        get active() {
+        get active(): boolean {
             return _state === STATE.HOLD || _state === STATE.WAIT;
         },
         addWatcher,

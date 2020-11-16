@@ -26,6 +26,10 @@ module.exports = {
                 [ '@babel/preset-typescript', { onlyRemoveTypeImports: true } ]
             ],
             plugins: [
+                // https://juejin.im/post/6844904190213390343
+                [
+                    'const-enum'
+                ],
                 [
                     'auto-import', {
                         declarations: [
