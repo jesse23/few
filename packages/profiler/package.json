@@ -4,6 +4,9 @@
     "description": "javascript performance profiler",
     "main": "index.js",
     "scripts": {
+        "lint": "npm run eslint && npm run tslint",
+        "tslint": "tsc --noEmit",
+        "eslint": "eslint src test --no-error-on-unmatched-pattern --ext js,jsx,ts,tsx",
         "test": "jest"
     },
     "keywords": [

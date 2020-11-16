@@ -1,4 +1,4 @@
-import { STATE } from '@/types';
+import { STATE, Watcher, Profiler } from '@/types';
 
 /**
  * Get current timestamp
@@ -17,36 +17,29 @@ export const now = (): number => {
  */
 export const BUSY_INTERVAL = 200;
 
-/*
-export const STATE = {
-    IDLE: Symbol( 'IDLE' ),
-    HOLD: Symbol( 'HOLD' ),
-    WAIT: Symbol( 'WAIT' ),
-    DONE: Symbol( 'DONE' )
-};
-*/
-
-
+/**
+ * origin setTimeout call
+ */
 const _globalSetTimeout = setTimeout;
 
+/**
+ * origin clearTimeout call
+ */
 const _globalClearTimeout = clearTimeout;
 
-export const createProfiler = ( interval = BUSY_INTERVAL ): any => {
+export const createProfiler = ( interval = BUSY_INTERVAL ): Profiler => {
     let _promise: Promise<number>;
 
     let _state = STATE.IDLE;
 
-    const _watchers = [] as any[];
+    const _watchers = [] as Watcher[];
 
-    const addWatcher = ( watcher: {} ) => _watchers.push( watcher );
-
-    const profile = () => {
+    const profile = (): Promise<number> => {
         _promise = _promise || new Promise( ( resolve, reject ) => {
             // start time
             const startTime = now();
 
-
-            const complete = () => {
+            const complete = (): void => {
                 _watchers.forEach( watcher => {
                     watcher.unregister();
                 } );
@@ -72,7 +65,7 @@ export const createProfiler = ( interval = BUSY_INTERVAL ): any => {
 
             const _onDone = (): void => {
                 _counter = _counter > 0 ? _counter - 1 : 0;
-                if( _counter === 0 ) {
+                if ( _counter === 0 ) {
                     _globalClearTimeout( timeoutID );
                     timeoutID = _globalSetTimeout( complete, interval );
                     // HOLD -> WAIT
@@ -92,13 +85,13 @@ export const createProfiler = ( interval = BUSY_INTERVAL ): any => {
     };
 
     return {
+        profile,
+        addWatcher: watcher => void _watchers.push( watcher ),
         get state(): STATE {
             return _state;
         },
         get active(): boolean {
             return _state === STATE.HOLD || _state === STATE.WAIT;
-        },
-        addWatcher,
-        profile
+        }
     };
 };
