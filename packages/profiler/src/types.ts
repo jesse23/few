@@ -9,6 +9,7 @@ export interface Observer {
     onStart: () => void;
     onDone: () => void;
     onComplete: () => void;
+    onTimeout: () => void;
 }
 
 export interface Observable {
@@ -21,6 +22,11 @@ export interface Profiler {
     profile: () => Promise<number>;
     readonly state: STATE;
     readonly active: boolean;
+}
+
+export interface Options {
+    interval?: number;
+    maxWait?: number;
 }
 
 export interface LegacyBrowserWindow {
