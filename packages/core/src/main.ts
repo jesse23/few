@@ -26,7 +26,7 @@ route.register( {
     enter: () => {
         // eslint-disable-next-line no-console
         console.log( 'about: enter' );
-        entryElem.innerHTML = 'Click any link above...';
+        entryElem.innerHTML = '<div class="test-elem">This is a test elem</div><div>Click any link above...</div>';
     },
     leave: () => {
         // eslint-disable-next-line no-console

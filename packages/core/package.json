@@ -64,5 +64,8 @@
         "tslint": "tsc --noEmit",
         "eslint": "eslint src test --no-error-on-unmatched-pattern --ext js,jsx,ts,tsx",
         "test": "jest"
+    },
+    "dependencies": {
+        "@types/jsdom": "^16.2.5"
     }
 }

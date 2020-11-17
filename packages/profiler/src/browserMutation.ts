@@ -1,6 +1,10 @@
+/**
+ * Two different approaches:
+ * -
+ */
 import { Observer, LegacyBrowserWindow } from '@/types';
 
-let _mutationObserver: any;
+let _mutationObserver: MutationObserver;
 const _observers = [] as Observer[];
 
 export const install = (): void => {

@@ -1,5 +1,5 @@
 /* eslint-env jest */
-
+/* global */
 interface Component {
     props: {
         [key: string]: number;
@@ -63,5 +63,29 @@ describe( 'native JS features', () => {
         };
 
         expect( renderFn() ).toEqual( 10 );
+    } );
+
+    // https://stackoverflow.com/questions/60396600/set-size-of-window-in-jest-and-jest-dom-and-jsdom
+    // https://github.com/jsdom/jsdom/blob/master/lib/jsdom/browser/Window.js#L643
+    it( 'Test jest css capability', () => {
+        // way to change window size:
+        // Object.defineProperty( window, 'innerWidth', { writable: true, configurable: true, value: 1024 } );
+        expect( window.innerWidth ).toBe( 1024 );
+        expect( window.innerHeight ).toBe( 768 );
+        const parent = document.createElement( 'div' );
+        parent.style.width = '200px';
+        parent.style.height = '200px';
+
+        const elem = document.createElement( 'div' );
+        elem.style.width = '100%';
+        elem.style.height = '100%';
+        parent.appendChild( elem );
+
+        document.body.appendChild( parent );
+
+        // NOTE: window.getComputedStyle has very limited ability in jsdom
+        // In chrome styleInfo.width will return exact width like '379px'
+        const styleInfo = window.getComputedStyle( elem );
+        expect( styleInfo.width ).toEqual( '100%' );
     } );
 } );

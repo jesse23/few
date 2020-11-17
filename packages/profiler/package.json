@@ -48,5 +48,8 @@
         "typescript": "^3.8.3"
     },
     "author": "jesse23",
-    "license": "MIT"
+    "license": "MIT",
+    "dependencies": {
+        "@types/jsdom": "^16.2.5"
+    }
 }
