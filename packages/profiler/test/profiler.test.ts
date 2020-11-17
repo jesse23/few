@@ -42,7 +42,9 @@ describe( 'Test profiler', () => {
         const promise3 = profiler.profile();
         expect( promise1 ).toBe( promise3 );
     } );
+} );
 
+describe( 'Test profiler with observable', () => {
     it( 'Verify state transition with observable by start-done in sync', async() => {
         const profiler = createProfiler();
         profiler.addObservable( mockObservable );
@@ -86,6 +88,66 @@ describe( 'Test profiler', () => {
 
         expect( elapsed ).toBeGreaterThan( 0 + BUSY_INTERVAL );
         expect( elapsed ).toBeLessThan( TOLERANCE + BUSY_INTERVAL );
+    } );
+
+    it( 'Verify profile can handle "overlap procedure"', async() => {
+        const profiler = createProfiler();
+        profiler.addObservable( mockObservable );
+
+        // start profiler
+        const promise = profiler.profile();
+        expect( profiler.state ).toEqual( STATE.WAIT );
+        expect( profiler.active ).toEqual( true );
+
+        // mimic 2 overlap procedure
+        await wait( BUSY_INTERVAL / 2 );
+        mockObservable.start();
+        await wait( BUSY_INTERVAL / 2 );
+        mockObservable.start();
+
+        // one normal procedure
+        await wait( BUSY_INTERVAL / 2 );
+        mockObservable.done();
+        await wait( BUSY_INTERVAL / 2 );
+        mockObservable.done();
+
+        // wait -> done
+        const elapsed = await promise;
+        expect( profiler.state ).toEqual( STATE.DONE );
+        expect( profiler.active ).toEqual( false );
+
+        expect( elapsed ).toBeGreaterThan( 0 + 2 * BUSY_INTERVAL );
+        expect( elapsed ).toBeLessThan( TOLERANCE + 2 * BUSY_INTERVAL );
+    } );
+
+    it( 'Verify profile can handle "procedure in progress" ( done signal come 1st )', async() => {
+        const profiler = createProfiler();
+        profiler.addObservable( mockObservable );
+
+        // start profiler
+        const promise = profiler.profile();
+        expect( profiler.state ).toEqual( STATE.WAIT );
+        expect( profiler.active ).toEqual( true );
+
+        // mimic 2 procedure are in progress already
+        await wait( BUSY_INTERVAL / 2 );
+        mockObservable.done();
+        await wait( BUSY_INTERVAL / 2 );
+        mockObservable.done();
+
+        // one normal procedure
+        await wait( BUSY_INTERVAL / 2 );
+        mockObservable.start();
+        await wait( BUSY_INTERVAL / 2 );
+        mockObservable.done();
+
+        // wait -> done
+        const elapsed = await promise;
+        expect( profiler.state ).toEqual( STATE.DONE );
+        expect( profiler.active ).toEqual( false );
+
+        expect( elapsed ).toBeGreaterThan( 0 + 2 * BUSY_INTERVAL );
+        expect( elapsed ).toBeLessThan( TOLERANCE + 2 * BUSY_INTERVAL );
     } );
 } );
 

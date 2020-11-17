@@ -6,7 +6,9 @@
     "lint": "cd packages/core && npm run lint",
     "build": "cd packages/core && npm run build",
     "start": "cd packages/core && npm run start",
-    "test": "cd packages/core && npm run test"
+    "test:core": "cd packages/core && npm run test",
+    "test:profiler": "cd packages/profiler && npm run test",
+    "test": "npm run test:core && npm run test:profiler"
   },
   "workspaces": [
     "packages/*"
