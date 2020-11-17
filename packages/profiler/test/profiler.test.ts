@@ -2,7 +2,7 @@
 import { STATE } from '@/types';
 import { BUSY_INTERVAL, createProfiler, now, reset, MAX_WAIT_INTERVAL } from '@/profiler';
 import { useMockTimer, wait } from './utils';
-import * as mockObservable from '@/mockObservable';
+import { createMockObservable } from '@/mockObservable';
 
 // JS timer is inaccurate since it is passive, put a TOLERANCE for test verification
 const TOLERANCE = 50;
@@ -45,6 +45,8 @@ describe( 'Test profiler', () => {
 } );
 
 describe( 'Test profiler with observable', () => {
+    const mockObservable = createMockObservable();
+
     it( 'Verify state transition with observable by start-done in sync', async() => {
         const profiler = createProfiler();
         profiler.addObservable( mockObservable );
@@ -55,8 +57,8 @@ describe( 'Test profiler with observable', () => {
         expect( profiler.active ).toEqual( true );
 
         await wait( BUSY_INTERVAL / 2 );
-        mockObservable.start();
-        mockObservable.done();
+        mockObservable.mockStart();
+        mockObservable.mockDone();
 
         // wait -> done
         const elapsed = await promise;
@@ -77,9 +79,9 @@ describe( 'Test profiler with observable', () => {
         expect( profiler.active ).toEqual( true );
 
         await wait( BUSY_INTERVAL / 2 );
-        mockObservable.start();
+        mockObservable.mockStart();
         await wait( BUSY_INTERVAL / 2 );
-        mockObservable.done();
+        mockObservable.mockDone();
 
         // wait -> done
         const elapsed = await promise;
@@ -101,15 +103,15 @@ describe( 'Test profiler with observable', () => {
 
         // mimic 2 overlap procedure
         await wait( BUSY_INTERVAL / 2 );
-        mockObservable.start();
+        mockObservable.mockStart();
         await wait( BUSY_INTERVAL / 2 );
-        mockObservable.start();
+        mockObservable.mockStart();
 
         // one normal procedure
         await wait( BUSY_INTERVAL / 2 );
-        mockObservable.done();
+        mockObservable.mockDone();
         await wait( BUSY_INTERVAL / 2 );
-        mockObservable.done();
+        mockObservable.mockDone();
 
         // wait -> done
         const elapsed = await promise;
@@ -131,15 +133,15 @@ describe( 'Test profiler with observable', () => {
 
         // mimic 2 procedure are in progress already
         await wait( BUSY_INTERVAL / 2 );
-        mockObservable.done();
+        mockObservable.mockDone();
         await wait( BUSY_INTERVAL / 2 );
-        mockObservable.done();
+        mockObservable.mockDone();
 
         // one normal procedure
         await wait( BUSY_INTERVAL / 2 );
-        mockObservable.start();
+        mockObservable.mockStart();
         await wait( BUSY_INTERVAL / 2 );
-        mockObservable.done();
+        mockObservable.mockDone();
 
         // wait -> done
         const elapsed = await promise;
@@ -152,6 +154,7 @@ describe( 'Test profiler with observable', () => {
 } );
 
 describe( 'Test profiler using mockTimer', () => {
+    const mockObservable = createMockObservable();
     useMockTimer( () => reset() );
 
     it( 'Verify profile will error out if state is on hold for default maxWait', async() => {
@@ -164,7 +167,7 @@ describe( 'Test profiler using mockTimer', () => {
         expect( profiler.active ).toEqual( true );
 
         await wait( BUSY_INTERVAL / 2 );
-        mockObservable.start();
+        mockObservable.mockStart();
 
         // wait -> done by timeout
         await wait( MAX_WAIT_INTERVAL );
@@ -185,7 +188,7 @@ describe( 'Test profiler using mockTimer', () => {
         expect( profiler.active ).toEqual( true );
 
         await wait( BUSY_INTERVAL / 2 );
-        mockObservable.start();
+        mockObservable.mockStart();
 
         // wait -> done by timeout
         await wait( MAX_WAIT_INTERVAL );

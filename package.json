@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "c": "git add -A && git-cz",
-    "lint": "cd packages/core && npm run lint",
+    "lint": "cd packages/core && npm run lint && cd ../profiler && npm run lint",
     "build": "cd packages/core && npm run build",
     "start": "cd packages/core && npm run start",
     "test:core": "cd packages/core && npm run test",
