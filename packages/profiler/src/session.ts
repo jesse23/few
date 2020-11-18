@@ -31,19 +31,31 @@ export const createSession = ( profiler: Profiler ): Session => {
 
     let _active = false;
 
+    let _promise: Promise<number>;
+
     return {
         enable: (): void => {
             _active = true;
 
-            let _res = -1;
 
             const observer: Observer = {
                 onStart: async() => {
-                   _res = await _profiler.profile();
+                    if ( !_promise ) {
+                        /**
+                         * - If session is not started, start it;
+                         * - If session is started, since the same observable
+                         *   will be part of the profilers observable, we don't
+                         *   need a separate resetWait
+                         */
+                        _promise = _profiler.profile();
+                        const _res = await _promise;
 
-                    _subs.forEach( sub => {
-                        sub.onUpdate( _res );
-                    } );
+                        _subs.forEach( sub => {
+                            sub.onUpdate( _res );
+                        } );
+
+                        _promise = null;
+                    }
                 },
                 onDone: () => {
                     console.log( 'onDone' );

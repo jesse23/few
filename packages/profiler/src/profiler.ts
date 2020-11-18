@@ -103,6 +103,8 @@ export const createProfiler = ( options: Options = defaultOptions ): Profiler =>
                     _state = STATE.DONE;
 
                     resolve( now() - startTime - _options.interval );
+                    // TODO: temp fix for session
+                    _promise = null;
                 },
                 onTimeout: () => {
                     _obs.forEach( ob => {
