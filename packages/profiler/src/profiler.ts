@@ -62,18 +62,19 @@ export const createProfiler = ( options: Options = defaultOptions ): Profiler =>
         ...options
     };
 
+    const _obs = [] as Observable[];
+
     let _promise: Promise<number>;
 
     let _state = STATE.IDLE;
 
-    const _obs = [] as Observable[];
+    let _timeoutId: NodeJS.Timeout;
 
     const profile = (): Promise<number> => {
         _promise = _promise || new Promise( ( resolve, reject ) => {
             // start time
             const startTime = now();
             let _counter = 0;
-            let _timeoutId: NodeJS.Timeout;
             const observer: Observer = {
                 onStart: () => {
                     if ( _counter === 0 ) {
@@ -112,12 +113,16 @@ export const createProfiler = ( options: Options = defaultOptions ): Profiler =>
                 }
             };
 
-            _timeoutId = _globalSetTimeout( observer.onComplete, _options.interval );
-
-            // start
+            // when this working with session together, this is problematic that:
+            // - when session.enable, this is not happened yet.
+            // - so the '1st click' might not be tracked here which onStart is
+            //   not triggered.
+            // need a solution later.
             _obs.forEach( ob => {
                 ob.subscribe( observer );
             } );
+
+            _timeoutId = _globalSetTimeout( observer.onComplete, _options.interval );
 
             // IDLE -> WAIT
             _state = STATE.WAIT;

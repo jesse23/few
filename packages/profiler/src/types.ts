@@ -49,6 +49,13 @@ export interface Profiler {
     readonly active: boolean;
 }
 
+export interface Session {
+    enable: () => void;
+    addObservable: ( ob: Observable ) => void;
+    addSubscription: ( sub: any ) => void;
+    readonly active: boolean;
+}
+
 export interface Options {
     interval?: number;
     maxWait?: number;

@@ -38,4 +38,46 @@ class ClickListener implements Observable {
     }
 }
 
+// Try and ad-hoc practice, this is more likely an 'observer' rather than
+// observable.
+export const createDomEventObservable = (): Observable => {
+    // ad-hoc practice, no need to use array
+    let _observer: Observer;
+
+    const _clickHandler = (): void => {
+        if ( _observer ) {
+            _observer.onStart();
+            _observer.onDone();
+        }
+    };
+
+    const _install = (): void => {
+        document.addEventListener( 'click', _clickHandler );
+        document.addEventListener( 'mousedown', _clickHandler );
+    };
+
+    const _uninstall = (): void => {
+        document.removeEventListener( 'click', _clickHandler );
+        document.removeEventListener( 'mousedown', _clickHandler );
+    };
+
+    return {
+        subscribe: ( observer: Observer ): void => {
+            _observer = observer;
+
+            // ad-hoc practice, we can install it here
+            // for real observable, we can't do that since
+            // multiple observer might be subscribed to one
+            // observable
+            _install();
+        },
+        unsubscribe: ( /*observer: Observer*/ ): void => {
+            _observer = null;
+
+            // ad-hoc practice, we can uninstall it here
+            _uninstall();
+        }
+    };
+};
+
 export default ClickListener;
