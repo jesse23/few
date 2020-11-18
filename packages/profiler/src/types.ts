@@ -52,8 +52,12 @@ export interface Profiler {
 export interface Session {
     enable: () => void;
     addObservable: ( ob: Observable ) => void;
-    addSubscription: ( sub: any ) => void;
+    addSubscription: ( sub: Subscription ) => void;
     readonly active: boolean;
+}
+
+export interface Subscription {
+    onUpdate: ( content: any ) => void;
 }
 
 export interface Options {

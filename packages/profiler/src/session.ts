@@ -2,7 +2,8 @@ import {
     Observable,
     Observer,
     Profiler,
-    Session
+    Session,
+    Subscription
 } from '@/types';
 
 /**
@@ -24,7 +25,7 @@ import {
 export const createSession = ( profiler: Profiler ): Session => {
     const _obs = [] as Observable[];
 
-    const _subs = [];
+    const _subs: Subscription[] = [];
 
     const _profiler = profiler;
 
@@ -34,9 +35,15 @@ export const createSession = ( profiler: Profiler ): Session => {
         enable: (): void => {
             _active = true;
 
+            let _res = -1;
+
             const observer: Observer = {
-                onStart: () => {
-                    _profiler.profile();
+                onStart: async() => {
+                   _res = await _profiler.profile();
+
+                    _subs.forEach( sub => {
+                        sub.onUpdate( _res );
+                    } );
                 },
                 onDone: () => {
                     console.log( 'onDone' );
