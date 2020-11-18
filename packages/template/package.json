@@ -1,7 +1,7 @@
 {
-    "name": "@few/profiler",
+    "name": "@few/template",
     "version": "1.0.0",
-    "description": "javascript performance profiler",
+    "description": "html template processor",
     "main": "index.js",
     "scripts": {
         "lint": "npm run eslint && npm run tslint",
@@ -10,8 +10,7 @@
         "test": "jest"
     },
     "keywords": [
-        "html",
-        "template"
+        "profiler"
     ],
     "devDependencies": {
         "@babel/core": "^7.10.2",
@@ -51,3 +50,4 @@
     "author": "jesse23",
     "license": "MIT"
 }
+
