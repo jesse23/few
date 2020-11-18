@@ -88,4 +88,62 @@ describe( 'native JS features', () => {
         const styleInfo = window.getComputedStyle( elem );
         expect( styleInfo.width ).toEqual( '100%' );
     } );
+
+    // https://zhuanlan.zhihu.com/p/104565681
+    it( 'Test class hierarchy on instanced method(arrow member function)', () => {
+        const logArr: string[] = [];
+
+        // sub class in arrow member function case
+        class ParentArrowMemberFn {
+            constructor() {
+                this.setup();
+            }
+
+            setup = (): void => {
+                logArr.push( 'ParentArrowMemberFn::setup' );
+            }
+        }
+
+        class ChildArrowMemberFn extends ParentArrowMemberFn {
+            constructor() {
+                super();
+            }
+
+            setup = (): void => {
+                logArr.push( 'ChildArrowMemberFn::setup' );
+            }
+        }
+
+
+        // sub class in normal member function case
+        class ParentNormalMemberFn {
+            constructor() {
+                this.setup();
+            }
+
+            setup(): void {
+                this;
+                logArr.push( 'ParentNormalMemberFn::setup' );
+            }
+        }
+
+        class ChildNormalMemberFn extends ParentNormalMemberFn {
+            constructor() {
+                super();
+            }
+
+            setup(): void {
+                this;
+                logArr.push( 'ChildNormalMemberFn::setup' );
+            }
+        }
+
+        new ChildArrowMemberFn();
+        new ChildNormalMemberFn();
+
+        expect( logArr ).toEqual( [
+            'ParentArrowMemberFn::setup',
+            'ChildNormalMemberFn::setup'
+        ] );
+    } );
 } );

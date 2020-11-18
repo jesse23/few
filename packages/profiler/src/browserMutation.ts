@@ -1,7 +1,4 @@
-/**
- * Two different approaches:
- * -
- */
+
 import { Observer, LegacyBrowserWindow } from '@/types';
 
 let _mutationObserver: MutationObserver;
