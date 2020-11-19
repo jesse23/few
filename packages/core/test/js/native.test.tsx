@@ -1,5 +1,5 @@
 /* eslint-env jest */
-/* global */
+import { wait } from '@/utils';
 interface Component {
     props: {
         [key: string]: number;
@@ -145,5 +145,41 @@ describe( 'native JS features', () => {
             'ParentArrowMemberFn::setup',
             'ChildNormalMemberFn::setup'
         ] );
+    } );
+
+    // https://zellwk.com/blog/async-await-in-loops/
+    it( 'await inside for', async() => {
+        const res: number[] = [];
+        const fnAwaitInFor = async() => {
+            let i = 1;
+            for ( let j = 0; j < 4; j++ ) {
+                // eslint-disable-next-line no-await-in-loop
+                await wait( 200 );
+                res.push( i++ );
+            }
+        };
+
+        fnAwaitInFor();
+        await wait( 300 );
+        expect( res ).toEqual( [ 1 ] );
+        await wait( 200 );
+        expect( res ).toEqual( [ 1, 2 ] );
+        await wait( 500 );
+        expect( res ).toEqual( [ 1, 2, 3, 4 ] );
+    } );
+
+    it( 'await inside forEach', async() => {
+        const res: number[] = [];
+        const fnAwaitInForEach = async() => {
+            let i = 1;
+            [ 1, 2, 3, 4 ].forEach( async() => {
+                await wait( 200 );
+                res.push( i++ );
+            } );
+        };
+
+        fnAwaitInForEach();
+        await wait( 250 );
+        expect( res ).toEqual( [ 1, 2, 3, 4 ] );
     } );
 } );
