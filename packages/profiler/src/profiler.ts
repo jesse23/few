@@ -38,41 +38,55 @@ export const now = (): number => {
     return Date.now();
 };
 
-export const profile = ( observables: Observable[] = [], options?: Options ): Promise<number> => {
-    return new Promise( ( resolve, reject ) => {
-        // start time
-        const startTime = now();
-        let _counter = 0;
-        const observer = {} as Observer;
-        const state = createState( () => {
-            observables.forEach( ob => {
-                ob.unsubscribe( observer );
-            } );
+export const createDebounceObserver = (
+    resolve: ( value?: unknown ) => void = () => void null,
+    reject: ( reason?: string ) => void = () => void null,
+    options?: Options
+): Observer => {
+    let _counter = 0;
 
-            resolve( now() - startTime - state.interval );
-        }, ( reason ) => reject( reason ), options );
+    const state = createState( () => {
+        resolve();
+    }, ( reason ) => {
+        reject( reason );
+    }, options );
 
-        observer.onStart = (): void => {
+    return {
+        onStart: (): void => {
             if ( _counter === 0 ) {
                 state.toHold();
             }
             _counter++;
-        };
-
-        observer.onDone = (): void => {
+        },
+        onDone: (): void => {
             _counter = _counter > 0 ? _counter - 1 : 0;
             if ( _counter === 0 ) {
                 state.toWait();
             }
-        };
+        }
+    };
+};
+
+export const profile = ( observables: Observable[] = [], options?: Options ): Promise<number> => {
+    return new Promise( ( resolve, reject ) => {
+        const startTime = now();
+        const observer = createDebounceObserver( () => {
+            observables.forEach( ob => {
+                ob.unsubscribe( observer );
+            } );
+            resolve( now() - startTime - 200 );
+        }, reason => {
+            observables.forEach( ob => {
+                ob.unsubscribe( observer );
+            } );
+            reject( reason );
+        }, options );
 
         observables.forEach( ob => {
             ob.subscribe( observer as Observer );
         } );
 
-        // launch
-        // if we skip _toWait but just wire it up with observable
-        // it will make it 'passive'
-        state.toWait();
+        // TODO: quick hack
+        observer.onDone();
     } );
 };

@@ -1,21 +1,3 @@
-/**
- * - In a given client, there will be a set of resources as 'observable'
- *   - JS Event Loop Entry ( setTimeout, Promise, XHR.onLoad )
- *   - XHR (server request, maybe by domain later)
- *   - Mutation Observer (dom change)
- *   - Location change event (popstate, hashchange)
- *   - DOM Event ( click, input... )
- *   - ResizeObserver?
- *   - RAF?
- *
- * - Not all observable will trigger 'profile' - only Location and DOM Event
- *
- * - Each observable might have its own metrics on its cycle
- *
- * - TTI polyfill is used to decide onComplete for an operation
- *
- * - For specific profiler, the output format and destination should be fixed
- */
 import {
     STATE,
     State,
