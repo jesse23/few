@@ -1,6 +1,6 @@
 /* eslint-env jest */
-import { STATE } from '@/types';
-import { BUSY_INTERVAL, createProfiler } from '@/profiler';
+import { profile } from '@/profiler';
+import { reset, BUSY_INTERVAL, MAX_WAIT_INTERVAL } from '@/state';
 import { wait } from './utils';
 import ClickListener, { createDomEventObservable } from '@/clickListener';
 
@@ -15,13 +15,7 @@ describe( 'Test profiler with ClickListener', () => {
     afterEach( () => clickObservable.uninstall() );
 
     it( 'Verify state transition with observable ClickListener', async() => {
-        const profiler = createProfiler();
-        profiler.addObservable( clickObservable );
-
-        // start profiler
-        const promise = profiler.profile();
-        expect( profiler.state ).toEqual( STATE.WAIT );
-        expect( profiler.active ).toEqual( true );
+        const promise = profile( [ clickObservable ] );
 
         await wait( BUSY_INTERVAL / 2 );
         document.body.click();
@@ -31,8 +25,6 @@ describe( 'Test profiler with ClickListener', () => {
 
         // wait -> done
         const elapsed = await promise;
-        expect( profiler.state ).toEqual( STATE.DONE );
-        expect( profiler.active ).toEqual( false );
 
         expect( elapsed ).toBeGreaterThan( 0 + BUSY_INTERVAL );
         expect( elapsed ).toBeLessThan( TOLERANCE + BUSY_INTERVAL );
@@ -41,13 +33,8 @@ describe( 'Test profiler with ClickListener', () => {
 
 describe( 'Test profiler with createDomEventObservable', () => {
     it( 'Verify state transition with observable from createDomEventObservable', async() => {
-        const profiler = createProfiler();
-        profiler.addObservable( createDomEventObservable() );
-
         // start profiler
-        const promise = profiler.profile();
-        expect( profiler.state ).toEqual( STATE.WAIT );
-        expect( profiler.active ).toEqual( true );
+        const promise = profile( [ createDomEventObservable() ] );
 
         await wait( BUSY_INTERVAL / 2 );
         document.body.click();
@@ -57,8 +44,6 @@ describe( 'Test profiler with createDomEventObservable', () => {
 
         // wait -> done
         const elapsed = await promise;
-        expect( profiler.state ).toEqual( STATE.DONE );
-        expect( profiler.active ).toEqual( false );
 
         expect( elapsed ).toBeGreaterThan( 0 + BUSY_INTERVAL );
         expect( elapsed ).toBeLessThan( TOLERANCE + BUSY_INTERVAL );

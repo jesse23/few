@@ -7,7 +7,7 @@ import { createMockObservable } from '@/mockObservable';
 
 // JS timer is inaccurate since it is passive, put a TOLERANCE for test verification
 const TOLERANCE = 50;
-describe( 'Test session', () => {
+xdescribe( 'Test session', () => {
     const mockObservable = createMockObservable();
 
     it( 'Verify session works for single observable practice', async() => {
@@ -84,7 +84,7 @@ describe( 'Test session', () => {
         expect( mockSubscription._res[0] ).toBeLessThan( TOLERANCE + BUSY_INTERVAL );
     } );
 
-    fit( 'Verify multiple observable event in different cycle will be counted as different', async() => {
+    it( 'Verify multiple observable event in different cycle will be counted as different', async() => {
         const profiler = createProfiler();
         profiler.addObservable( mockObservable );
         const session = createSession( profiler );

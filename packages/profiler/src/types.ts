@@ -2,14 +2,17 @@ export const enum STATE {
     IDLE = 0,
     HOLD = 1,
     WAIT = 2,
-    DONE = 3
+    DONE = 3,
+    ERROR = 4
 }
 
 export interface Observer {
     onStart: () => void;
     onDone: () => void;
+    /*
     onComplete: () => void;
     onTimeout: () => void;
+    */
 }
 
 /**
@@ -42,11 +45,14 @@ export interface Observable {
     unsubscribe: ( proc: Observer ) => void;
 }
 
-export interface Profiler {
-    addObservable: ( ob: Observable ) => void;
-    profile: () => Promise<number>;
+export interface State {
     readonly state: STATE;
     readonly active: boolean;
+    readonly interval: number;
+    toWait: () => void;
+    toHold: () => void;
+    toDone: () => void;
+    toError: () => void;
 }
 
 export interface Session {

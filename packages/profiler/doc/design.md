@@ -1,9 +1,11 @@
-# Use case 1: passive (browser)
+# JS Performance Benchmark Scenario
+## Use case 1: passive (browser)
 - Example
   ```javascript
   elem.onClick = async( e ) => {
       const content = await loadFromServer(e.target.internalKey);
       dispatch( 'someKey', content );
+      // there might be follow up state change after someKey update
   }
   ```
 - In this case, we will enable/start the session forever or by option
@@ -15,7 +17,7 @@
 - Tradeoff or disadvantage is, there is no `session-id` concept to differentiate the `requestor`. At browser side it is generally fine since we know only one user will operate :),
   - But still there might be case like client side Polling, which might cause side effect. But that is not breaking what we want to test from `user point of view` when we use this approach at client.
 
-# Use case 2: active (nodeJS)
+## Use case 2: active (nodeJS)
 - Example
   ```javascript
   const convertFiles = async( path ) => {
@@ -31,7 +33,7 @@
 - The observable part is the same - processing `values` from observables.
 - At the end of the process, we can do the `onComplete` part explicitly.
 
-# Use case 3: passive (nodeJS, express server)
+## Use case 3: passive (nodeJS, express server)
 - Example
 ```javascript
 app.get('/convertFiles', async ( req, res ) => {
@@ -44,7 +46,10 @@ app.get('/convertFiles', async ( req, res ) => {
 - `TTIPolyfill` is not sufficient for this case - there might be multiple request into the same node process, obviously the expectation here is `performance cost per request`.
 - Several approaches for this requirement:
   - like sequelize transaction, an explicit `container` and `id`.
-  - like react, we use a implicit ctx/session object implicitly in every call, so that we can use that session.id to trace
+    - problem is, we can monitor our code but cannot force 3rd party to follow the same rule.
+  - like react hook, we use a implicit ctx/session object implicitly in every call, so that we can use that session.id to trace.
+    - react hook approach may have issue in async flow.
   - port to a separate resource / process.
+- `TTIPolyfill` might still be useful when we want to watch server load by a logical start/stop from external.
 
 

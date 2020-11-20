@@ -182,4 +182,55 @@ describe( 'native JS features', () => {
         await wait( 250 );
         expect( res ).toEqual( [ 1, 2, 3, 4 ] );
     } );
+
+    it( 'promise execute sequence', async() => {
+        const res = [] as string[];
+        const promise = new Promise( resolve => {
+            res.push( 'inside resolve body' );
+
+            setTimeout( () => {
+                res.push( 'inside timeout before resolve' );
+                resolve( null );
+            }, 500 );
+        } );
+
+        const promise1 = promise.then( ()=>{
+            res.push( 'inside then 1' );
+        } ).then( () => {
+            res.push( 'inside then 2' );
+        } );
+
+        const promise2 = promise.then( () => {
+            res.push( 'inside then 3' );
+        } );
+
+        res.push( 'after promises defined' );
+
+        await Promise.all( [ promise1, promise2 ] );
+
+        /*
+        practice below will follow seq 1->2->3
+        await promise.then( ()=>{
+            res.push( 'inside then 1' );
+        } ).then( () => {
+            res.push( 'inside then 2' );
+        } );
+
+        await promise.then( () => {
+            res.push( 'inside then 3' );
+        } );
+        */
+
+        res.push( 'after promises all' );
+
+        expect( res ).toEqual( [
+            'inside resolve body',
+            'after promises defined',
+            'inside timeout before resolve',
+            'inside then 1',
+            'inside then 3',
+            'inside then 2',
+            'after promises all'
+        ] );
+    } );
 } );

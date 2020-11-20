@@ -38,7 +38,7 @@ export const createSession = ( profiler: Profiler ): Session => {
             _active = true;
 
 
-            const observer: Observer = {
+            const observer = {
                 onStart: async() => {
                     if ( !_promise ) {
                         /**
@@ -59,14 +59,8 @@ export const createSession = ( profiler: Profiler ): Session => {
                 },
                 onDone: () => {
                     console.log( 'onDone' );
-                },
-                onComplete: () => {
-                    console.log( 'onComplete' );
-                },
-                onTimeout: () => {
-                    console.log( 'onTimeout' );
                 }
-            };
+            } as Observer;
 
             _obs.forEach( ob => {
                 ob.subscribe( observer );
