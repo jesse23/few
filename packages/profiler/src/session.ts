@@ -1,7 +1,6 @@
 import {
     Observable,
     Observer,
-    Profiler,
     Session,
     Subscription
 } from '@/types';
@@ -22,7 +21,7 @@ import {
  * @param profiler profiler that used in session.
  * @returns session object
  */
-export const createSession = ( profiler: Profiler ): Session => {
+export const createSession = ( profiler: any ): Session => {
     const _obs = [] as Observable[];
 
     const _subs: Subscription[] = [];

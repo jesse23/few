@@ -86,7 +86,7 @@ export const profile = ( observables: Observable[] = [], options?: Options ): Pr
             ob.subscribe( observer as Observer );
         } );
 
-        // TODO: quick hack
+        // TODO: quick hack - we know DebounceObserver.onDone is toWait
         observer.onDone();
     } );
 };

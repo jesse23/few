@@ -1,6 +1,7 @@
 /* eslint-env jest */
 import { STATE, Subscription } from '@/types';
-import { BUSY_INTERVAL, createProfiler, now, reset, MAX_WAIT_INTERVAL } from '@/profiler';
+import { profile, now } from '@/profiler';
+import { BUSY_INTERVAL, MAX_WAIT_INTERVAL, reset } from '@/state';
 import { useMockTimer, wait } from './utils';
 import { createSession } from '@/session';
 import { createMockObservable } from '@/mockObservable';
@@ -11,7 +12,7 @@ xdescribe( 'Test session', () => {
     const mockObservable = createMockObservable();
 
     it( 'Verify session works for single observable practice', async() => {
-        const profiler = createProfiler();
+        const profiler = null as any;
         profiler.addObservable( mockObservable );
         const session = createSession( profiler );
         session.addObservable( mockObservable );
@@ -46,7 +47,7 @@ xdescribe( 'Test session', () => {
     } );
 
     it( 'Verify multiple observable event in same cycle will be counted as one', async() => {
-        const profiler = createProfiler();
+        const profiler = null as any;
         profiler.addObservable( mockObservable );
         const session = createSession( profiler );
         session.addObservable( mockObservable );
@@ -85,7 +86,7 @@ xdescribe( 'Test session', () => {
     } );
 
     it( 'Verify multiple observable event in different cycle will be counted as different', async() => {
-        const profiler = createProfiler();
+        const profiler = null as any;
         profiler.addObservable( mockObservable );
         const session = createSession( profiler );
         session.addObservable( mockObservable );
