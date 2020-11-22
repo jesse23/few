@@ -5,7 +5,7 @@ interface MockObservable extends Observable {
 }
 
 export const createMockObservable = (): MockObservable => {
-    const _observers = [] as Observer[];
+    let _observers = [] as Observer[];
     return {
         mockStart: (): void => {
             // DOM child node approach
@@ -21,7 +21,9 @@ export const createMockObservable = (): MockObservable => {
         mockDone: (): void => {
             // DOM child node approach
             for( let i = 0; i < _observers.length; i++ ) {
-                _observers[i].onDone();
+                _observers[i].onDone( {
+                    count: 1
+                } );
             }
             /*
             _observers.forEach( ( observer: Observer ) => {
@@ -33,7 +35,24 @@ export const createMockObservable = (): MockObservable => {
             _observers.push( observer );
         },
         unsubscribe: ( observer: Observer ): void => {
-            _observers.filter( ( o: Observer ) => o !== observer );
+            _observers = _observers.filter( ( o: Observer ) => o !== observer );
+        }
+    };
+};
+
+interface MockObserver extends Observer {
+    getMetrics: () => number;
+}
+
+export const createMockObserver = (): MockObserver => {
+    let _res = 0;
+    return {
+        onStart: () => void null,
+        onDone: ( { count } ): void => {
+            _res += count;
+        },
+        getMetrics: (): number => {
+            return _res;
         }
     };
 };

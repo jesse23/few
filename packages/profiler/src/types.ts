@@ -6,9 +6,13 @@ export const enum STATE {
     ERROR = 4
 }
 
+export interface Props {
+    [key: string]: any;
+}
+
 export interface Observer {
     onStart: () => void;
-    onDone: () => void;
+    onDone: ( content?: Props ) => void;
     /*
     onComplete: () => void;
     onTimeout: () => void;

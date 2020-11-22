@@ -194,7 +194,7 @@ describe( 'native JS features', () => {
             }, 500 );
         } );
 
-        const promise1 = promise.then( ()=>{
+        const promise1 = promise.then( () => {
             res.push( 'inside then 1' );
         } ).then( () => {
             res.push( 'inside then 2' );
@@ -231,6 +231,100 @@ describe( 'native JS features', () => {
             'inside then 3',
             'inside then 2',
             'after promises all'
+        ] );
+    } );
+
+    // https://medium.com/better-programming/be-the-master-of-the-event-loop-in-javascript-part-1-6804cdf6608f
+    it( 'Event Loop', async() => {
+        const res = [] as string[];
+
+        const syncFn = (): void => void res.push( 'syncFn' );
+        const setTimeoutFn1 = (): void => void setTimeout( () => res.push( 'setTimeoutFn1' ) );
+        const setTimeoutFn2 = (): void => void setTimeout( () => res.push( 'setTimeoutFn2' ) );
+        const rafFn1 = (): void => void requestAnimationFrame( () => res.push( 'rafFn1' ) );
+        const rafFn2 = (): void => void requestAnimationFrame( () => res.push( 'rafFn2' ) );
+        const promiseFn1 = (): void => void Promise.resolve().then( () => res.push( 'promiseFn1_then1' ) ).then( () => res.push( 'promiseFn1_then2' ) );
+        const promiseFn2 = (): void => void Promise.resolve().then( () => res.push( 'promiseFn2_then1' ) ).then( () => res.push( 'promiseFn2_then2' ) );
+        const promiseFn3 = (): void => void Promise.all( [
+            Promise.resolve().then( () => res.push( 'promiseFn3_all1' ) ),
+            Promise.resolve().then( () => res.push( 'promiseFn3_all2' ) ).then( () => res.push( 'promiseFn3_all2.then1' ) )
+        ] ).then( () => res.push( 'promiseFn3_then1' ) );
+
+        res.push( 'start' );
+        syncFn();
+        setTimeoutFn1();
+        promiseFn1();
+        rafFn1();
+        setTimeoutFn2();
+        promiseFn2();
+        rafFn2();
+        promiseFn3();
+        res.push( 'end' );
+
+        await wait( 1000 );
+
+        // NOTE: Jest use its own raf polyfill, which is same as safari but different with
+        // edge/chrome/opera
+        expect( res ).toEqual( [
+            'start',
+            'syncFn',
+            'end',
+            'promiseFn1_then1',
+            'promiseFn2_then1',
+            'promiseFn3_all1',
+            'promiseFn3_all2',
+            'promiseFn1_then2',
+            'promiseFn2_then2',
+            'promiseFn3_all2.then1',
+            'promiseFn3_then1',
+            // in chrome liz should be here
+            // 'rafFn1',
+            // 'rafFn2',
+            'setTimeoutFn1',
+            'setTimeoutFn2',
+            'rafFn1',
+            'rafFn2'
+        ] );
+    } );
+
+    // https://medium.com/better-programming/be-the-master-of-the-event-loop-in-javascript-part-2-54637d49889f
+    it( 'Event Loop with DOM', async() => {
+        const res = [] as string[];
+        const elem = document.createElement( 'div' );
+        elem.innerHTML = `
+<body>
+  <div id="myDiv">
+    <button id="myBtn">Click me</button>
+  </div>
+</body>
+        `;
+        document.body.appendChild( elem );
+
+        const div = document.getElementById( 'myDiv' );
+        const btn = document.getElementById( 'myBtn' );
+        const t = ( key: string ): void => {
+            setTimeout( () => res.push( `${key}.setTimeout` ) );
+            requestAnimationFrame( () => res.push( `${key}.rAF` ) );
+            Promise.resolve().then( () => res.push( `${key}.Promise` ) );
+        };
+        div.addEventListener( 'click', () => ( ( res.push( 'div.click' ), t( 'div' ) ) ) );
+        btn.addEventListener( 'click', () => ( ( res.push( 'btn.click' ), t( 'btn' ) ) ) );
+        btn.click();
+
+        await wait( 1000 );
+
+        // see the link above:
+        // - Actual DOM click will be separate macro task
+        // - elem.click will be in the same 'task'
+        expect( res ).toEqual( [
+            'btn.click',
+            'div.click',
+            'btn.Promise',
+            'div.Promise',
+            'btn.setTimeout',
+            'div.setTimeout',
+            'btn.rAF',
+            'div.rAF'
         ] );
     } );
 } );

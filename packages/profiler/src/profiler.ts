@@ -19,7 +19,8 @@
 import {
     Observable,
     Observer,
-    Options
+    Options,
+    STATE
 } from '@/types';
 
 import {
@@ -38,11 +39,15 @@ export const now = (): number => {
     return Date.now();
 };
 
+interface DebounceObserver extends Observer {
+    getState: () => STATE;
+}
+
 export const createDebounceObserver = (
     resolve: ( value?: unknown ) => void = () => void null,
     reject: ( reason?: string ) => void = () => void null,
     options?: Options
-): Observer => {
+): DebounceObserver => {
     let _counter = 0;
 
     const state = createState( () => {
@@ -52,6 +57,9 @@ export const createDebounceObserver = (
     }, options );
 
     return {
+        getState: (): STATE => {
+            return state.state;
+        },
         onStart: (): void => {
             if ( _counter === 0 ) {
                 state.toHold();
@@ -85,8 +93,32 @@ export const profile = ( observables: Observable[] = [], options?: Options ): Pr
         observables.forEach( ob => {
             ob.subscribe( observer as Observer );
         } );
-
-        // TODO: quick hack - we know DebounceObserver.onDone is toWait
+        // bootObservable.bootstrap();
+        observer.onStart();
         observer.onDone();
     } );
 };
+
+/*
+interface BootObservable extends Observable {
+    bootstrap: () => void;
+}
+const createBootObservable = (): BootObservable => {
+    const _observers = [] as Observer[];
+
+    return {
+        bootstrap: (): void => {
+           for( let i = 0; i < _observers.length; i++ ) {
+                _observers[i].onStart();
+                _observers[i].onDone();
+            }
+        },
+        subscribe: ( observer: Observer ): void => {
+            _observers.push( observer );
+        },
+        unsubscribe: ( observer: Observer ): void => {
+            _observers.filter( ( o: Observer ) => o !== observer );
+        }
+    };
+};
+*/
