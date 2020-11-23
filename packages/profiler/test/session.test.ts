@@ -1,6 +1,7 @@
 /* eslint-env jest */
 import { STATE, Subscription } from '@/types';
-import { profile, now } from '@/profiler';
+import { profile } from '@/profiler';
+import { now } from '@/utils';
 import { BUSY_INTERVAL, MAX_WAIT_INTERVAL, reset } from '@/state';
 import { useMockTimer, wait } from './utils';
 import { createSession } from '@/session';
