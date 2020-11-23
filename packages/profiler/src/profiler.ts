@@ -19,61 +19,14 @@
 import {
     Observable,
     Observer,
-    Options,
-    STATE
+    Options
 } from '@/types';
 
 import {
-    createState
-} from '@/state';
+    createDebounceObserver
+} from '@/observer';
 
-/**
- * Get current timestamp
- *
- * @returns current timestamp as number
- */
-export const now = (): number => {
-    if ( window && window.performance ) {
-        return window.performance.now();
-    }
-    return Date.now();
-};
-
-interface DebounceObserver extends Observer {
-    getState: () => STATE;
-}
-
-export const createDebounceObserver = (
-    resolve: ( value?: unknown ) => void = () => void null,
-    reject: ( reason?: string ) => void = () => void null,
-    options?: Options
-): DebounceObserver => {
-    let _counter = 0;
-
-    const state = createState( () => {
-        resolve();
-    }, ( reason ) => {
-        reject( reason );
-    }, options );
-
-    return {
-        getState: (): STATE => {
-            return state.state;
-        },
-        onStart: (): void => {
-            if ( _counter === 0 ) {
-                state.toHold();
-            }
-            _counter++;
-        },
-        onDone: (): void => {
-            _counter = _counter > 0 ? _counter - 1 : 0;
-            if ( _counter === 0 ) {
-                state.toWait();
-            }
-        }
-    };
-};
+import { now } from '@/utils';
 
 export const profile = ( observables: Observable[] = [], options?: Options ): Promise<number> => {
     return new Promise( ( resolve, reject ) => {
@@ -98,27 +51,3 @@ export const profile = ( observables: Observable[] = [], options?: Options ): Pr
         observer.onDone();
     } );
 };
-
-/*
-interface BootObservable extends Observable {
-    bootstrap: () => void;
-}
-const createBootObservable = (): BootObservable => {
-    const _observers = [] as Observer[];
-
-    return {
-        bootstrap: (): void => {
-           for( let i = 0; i < _observers.length; i++ ) {
-                _observers[i].onStart();
-                _observers[i].onDone();
-            }
-        },
-        subscribe: ( observer: Observer ): void => {
-            _observers.push( observer );
-        },
-        unsubscribe: ( observer: Observer ): void => {
-            _observers.filter( ( o: Observer ) => o !== observer );
-        }
-    };
-};
-*/

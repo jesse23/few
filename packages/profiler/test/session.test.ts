@@ -4,7 +4,7 @@ import { profile, now } from '@/profiler';
 import { BUSY_INTERVAL, MAX_WAIT_INTERVAL, reset } from '@/state';
 import { useMockTimer, wait } from './utils';
 import { createSession } from '@/session';
-import { createMockObservable } from '@/mockObservable';
+import { createMockObservable } from '@/observable';
 
 // JS timer is inaccurate since it is passive, put a TOLERANCE for test verification
 const TOLERANCE = 50;

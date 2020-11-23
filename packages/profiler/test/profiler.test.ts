@@ -1,8 +1,9 @@
 /* eslint-env jest */
 import { reset, BUSY_INTERVAL, MAX_WAIT_INTERVAL } from '@/state';
-import { now, profile } from '@/profiler';
+import { profile } from '@/profiler';
 import { useMockTimer, wait } from './utils';
-import { createMockObservable } from '@/mockObservable';
+import { createMockObservable } from '@/observable';
+import { now } from '@/utils';
 
 // JS timer is inaccurate since it is passive, put a TOLERANCE for test verification
 const TOLERANCE = 50;

@@ -1,6 +1,6 @@
 /* eslint-env jest */
-import { createMockObservable, createMockObserver, createTtiObserver } from '@/mockObservable';
-import { createDebounceObserver } from '@/profiler';
+import { createMockObservable } from '@/observable';
+import { createDebounceObserver, createMockObserver, createTtiObserver } from '@/observer';
 import { BUSY_INTERVAL } from '@/state';
 import { STATE } from '@/types';
 import { wait } from './utils';
