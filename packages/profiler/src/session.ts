@@ -49,9 +49,11 @@ export const createSession = ( profiler: any ): Session => {
                         _promise = _profiler.profile();
                         const _res = await _promise;
 
+                        /*
                         _subs.forEach( sub => {
                             sub.onUpdate( _res );
                         } );
+                        */
 
                         _promise = null;
                     }
