@@ -36,6 +36,14 @@ export interface PerfObserver extends Observer {
     reset: () => void;
 }
 
+export interface Subscription {
+    /**
+     * unsubscribe subscription from certain context
+     * @param proc observer instance
+     */
+    unsubscribe: () => void;
+}
+
 /**
  * Two types of 'observables':
  *
@@ -57,14 +65,9 @@ export interface Observable {
      * subscribe to an observer
      * @param proc observer instance
      */
-    subscribe: ( proc: Observer ) => void;
-
-    /**
-     * unsubscribe to an observer
-     * @param proc observer instance
-     */
-    unsubscribe: ( proc: Observer ) => void;
+    subscribe: ( proc: Observer ) => Subscription;
 }
+
 
 export interface State {
     readonly state: STATE;
@@ -83,9 +86,11 @@ export interface Session {
     readonly active: boolean;
 }
 
+/*
 export interface Subscription {
     onUpdate: ( content: any ) => void;
 }
+*/
 
 export interface Options {
     interval?: number;

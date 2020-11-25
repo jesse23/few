@@ -1,4 +1,4 @@
-import { Observable, Observer } from './types';
+import { Observable, Observer, Subscription } from './types';
 
 /**
  * - listener, in one way, has no difference with `observable`.
@@ -10,8 +10,8 @@ class ClickListener implements Observable {
 
     private _clickHandler(): void {
         this._observers.forEach( observer => {
-            observer.onStart();
-            observer.onDone();
+            observer && observer.onStart();
+            observer && observer.onDone();
         } );
     }
 
@@ -29,12 +29,14 @@ class ClickListener implements Observable {
         document.removeEventListener( 'mousedown', () => this._clickHandler() );
     }
 
-    subscribe( observer: Observer ): void {
+    subscribe( observer: Observer ): Subscription {
         this._observers.push( observer );
-    }
-
-    unsubscribe( observer: Observer ): void {
-        this._observers.filter( ( o: Observer ) => o !== observer );
+        const id = this._observers.length - 1;
+        return {
+            unsubscribe: (): void => {
+                this._observers[id] = null;
+            }
+        };
     }
 }
 
@@ -46,8 +48,8 @@ export const createDomEventObservable = (): Observable => {
 
     const _clickHandler = (): void => {
         if ( _observer ) {
-            _observer.onStart();
-            _observer.onDone();
+            _observer && _observer.onStart();
+            _observer && _observer.onDone();
         }
     };
 
@@ -62,7 +64,7 @@ export const createDomEventObservable = (): Observable => {
     };
 
     return {
-        subscribe: ( observer: Observer ): void => {
+        subscribe: ( observer: Observer ): Subscription => {
             _observer = observer;
 
             // ad-hoc practice, we can install it here
@@ -70,12 +72,12 @@ export const createDomEventObservable = (): Observable => {
             // multiple observer might be subscribed to one
             // observable
             _install();
-        },
-        unsubscribe: ( /*observer: Observer*/ ): void => {
-            _observer = null;
 
-            // ad-hoc practice, we can uninstall it here
-            _uninstall();
+            return {
+                unsubscribe: (): void => {
+                    _observer = null;
+                }
+            };
         }
     };
 };

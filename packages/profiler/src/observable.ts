@@ -1,7 +1,8 @@
 import {
     Observable,
     Observer,
-    PerfObserver
+    PerfObserver,
+    Subscription
 } from '@/types';
 
 interface MockObservable extends Observable {
@@ -10,12 +11,12 @@ interface MockObservable extends Observable {
 }
 
 export const createMockObservable = (): MockObservable => {
-    let _observers = [] as Observer[];
+    const _observers = [] as Observer[];
     return {
         mockStart: (): void => {
             // DOM child node approach
             for( let i = 0; i < _observers.length; i++ ) {
-                _observers[i].onStart();
+                _observers[i] && _observers[i].onStart();
             }
             /*
             _observers.forEach( ( observer: Observer ) => {
@@ -26,7 +27,7 @@ export const createMockObservable = (): MockObservable => {
         mockDone: (): void => {
             // DOM child node approach
             for( let i = 0; i < _observers.length; i++ ) {
-                _observers[i].onDone( {
+                _observers[i] && _observers[i].onDone( {
                     count: 1
                 } );
             }
@@ -36,11 +37,14 @@ export const createMockObservable = (): MockObservable => {
             } );
             */
         },
-        subscribe: ( observer: Observer ): void => {
+        subscribe: ( observer: Observer ): Subscription => {
             _observers.push( observer );
-        },
-        unsubscribe: ( observer: Observer ): void => {
-            _observers = _observers.filter( ( o: Observer ) => o !== observer );
+            const id = _observers.length - 1;
+            return {
+                unsubscribe: (): void => {
+                    _observers[id] = null;
+                }
+            };
         }
     };
 };

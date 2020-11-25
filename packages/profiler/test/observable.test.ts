@@ -1,6 +1,6 @@
 /* eslint-env jest */
 import { wait } from './utils';
-import { STATE, PerfObserver } from '@/types';
+import { STATE, PerfObserver, Subscription } from '@/types';
 import { BUSY_INTERVAL } from '@/state';
 import {
     createMockObservable
@@ -31,29 +31,40 @@ const printObserver: PerfObserver & { _stack: string[] } = {
 };
 
 describe( 'Test observable/observer', () => {
+    let subscription: Subscription;
     const mockObservable = createMockObservable();
 
-    beforeEach( () => mockObservable.subscribe( printObserver ) );
+    beforeEach( () => {
+        subscription = mockObservable.subscribe( printObserver );
+    } );
 
     afterEach( () => {
-        mockObservable.unsubscribe( printObserver );
+        subscription.unsubscribe();
         printObserver.reset();
     } );
 
     it( 'Verify observable mechanism', () => {
         mockObservable.mockStart();
+        mockObservable.mockStart();
+        mockObservable.mockDone();
+        mockObservable.mockDone();
+        mockObservable.mockStart();
         mockObservable.mockDone();
 
         expect( printObserver.getMetrics() ).toEqual( [
+            'mockServer.onStart',
+            'mockServer.onStart',
+            'mockServer.onDone',
+            'mockServer.onDone',
             'mockServer.onStart',
             'mockServer.onDone'
         ] );
     } );
 } );
 
-
 describe( 'Test observable/debounceObserver', () => {
     const output = [] as any[];
+    const subscriptions: Subscription[] = [];
     const mockObservable = createMockObservable();
 
     const countObserver = createCountObserver();
@@ -74,17 +85,16 @@ describe( 'Test observable/debounceObserver', () => {
     beforeEach( () => {
         // different observer might subscribe to different observable
         // but the debounceObserver logic will be shared
-        mockObservable.subscribe( debounceObserver );
-        mockObservable.subscribe( countObserver );
-        mockObservable.subscribe( ttiObserver );
+        subscriptions.push( mockObservable.subscribe( debounceObserver ) );
+        subscriptions.push( mockObservable.subscribe( countObserver ) );
+        subscriptions.push( mockObservable.subscribe( ttiObserver ) );
     } );
 
     afterEach( () => {
-        // output.length = 0;
+        subscriptions.forEach( sub => sub.unsubscribe() );
+        subscriptions.splice( 0, subscriptions.length );
         output.splice( 0, output.length );
-        mockObservable.unsubscribe( debounceObserver );
-        mockObservable.unsubscribe( countObserver );
-        mockObservable.unsubscribe( ttiObserver );
+        // output.length = 0;
     } );
 
     it( 'Verify debounce observer for one cycle', async() => {

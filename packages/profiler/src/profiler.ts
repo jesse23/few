@@ -19,7 +19,8 @@
 import {
     Observable,
     Observer,
-    Options
+    Options,
+    Subscription
 } from '@/types';
 
 import {
@@ -31,20 +32,17 @@ import { now } from '@/utils';
 export const profile = ( observables: Observable[] = [], options?: Options ): Promise<number> => {
     return new Promise( ( resolve, reject ) => {
         const startTime = now();
+        const subscriptions: Subscription[] = [];
         const observer = createDebounceObserver( () => {
-            observables.forEach( ob => {
-                ob.unsubscribe( observer );
-            } );
+            subscriptions.forEach( sub => sub.unsubscribe() );
             resolve( now() - startTime - 200 );
         }, reason => {
-            observables.forEach( ob => {
-                ob.unsubscribe( observer );
-            } );
+            subscriptions.forEach( sub => sub.unsubscribe() );
             reject( reason );
         }, options );
 
         observables.forEach( ob => {
-            ob.subscribe( observer as Observer );
+            subscriptions.push( ob.subscribe( observer as Observer ) );
         } );
         // bootObservable.bootstrap();
         observer.onStart();
