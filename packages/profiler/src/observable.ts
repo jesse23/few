@@ -1,4 +1,8 @@
-import { Observable, Observer } from '@/types';
+import {
+    Observable,
+    Observer,
+    PerfObserver
+} from '@/types';
 
 interface MockObservable extends Observable {
     mockStart: () => void;
@@ -40,6 +44,7 @@ export const createMockObservable = (): MockObservable => {
         }
     };
 };
+
 
 /*
 interface BootObservable extends Observable {

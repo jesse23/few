@@ -39,13 +39,13 @@ const defaultOptions: Options = {
  *
  * https://github.com/GoogleChromeLabs/tti-polyfill
  *
+ * resolve: (value?: unknown) => void, reject: (reason?: any)
+ *
+ * @param resolve callback when state => DONE
+ * @param reject callback when state => ERROR
  * @param options profiler options
  * @returns profiler object
  */
-/*
-
-resolve: (value?: unknown) => void, reject: (reason?: any)
-*/
 export const createState = (
     resolve: ( value?: unknown ) => void = () => void null,
     reject: ( reason?: string ) => void = () => void null,

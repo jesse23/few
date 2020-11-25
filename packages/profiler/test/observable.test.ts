@@ -1,37 +1,50 @@
 /* eslint-env jest */
-import { createMockObservable } from '@/observable';
-import { createDebounceObserver, createMockObserver, createTtiObserver } from '@/observer';
-import { BUSY_INTERVAL } from '@/state';
-import { STATE } from '@/types';
 import { wait } from './utils';
+import { STATE, PerfObserver } from '@/types';
+import { BUSY_INTERVAL } from '@/state';
+import {
+    createMockObservable
+} from '@/observable';
+import {
+    createCountObserver,
+    createDebounceObserver,
+    createTtiObserver
+} from '@/observer';
 
 // JS timer is inaccurate since it is passive, put a TOLERANCE for test verification
 const TOLERANCE = 50;
 
+const printObserver: PerfObserver & { _stack: string[] } = {
+    onStart: (): void => {
+        printObserver._stack.push( 'mockServer.onStart' );
+    },
+    onDone: (): void => {
+        printObserver._stack.push( 'mockServer.onDone' );
+    },
+    getMetrics: (): string[] => {
+        return printObserver._stack;
+    },
+    reset: (): void => {
+        printObserver._stack = [];
+    },
+    _stack: []
+};
+
 describe( 'Test observable/observer', () => {
     const mockObservable = createMockObservable();
-    const printObserver = {
-        onStart: (): void => {
-            printObserver._stack.push( 'mockServer.onStart' );
-        },
-        onDone: (): void => {
-            printObserver._stack.push( 'mockServer.onDone' );
-        },
-        _stack: [] as string[]
-    };
 
     beforeEach( () => mockObservable.subscribe( printObserver ) );
 
     afterEach( () => {
         mockObservable.unsubscribe( printObserver );
-        printObserver._stack = [];
+        printObserver.reset();
     } );
 
     it( 'Verify observable mechanism', () => {
         mockObservable.mockStart();
         mockObservable.mockDone();
 
-        expect( printObserver._stack ).toEqual( [
+        expect( printObserver.getMetrics() ).toEqual( [
             'mockServer.onStart',
             'mockServer.onDone'
         ] );
@@ -40,31 +53,37 @@ describe( 'Test observable/observer', () => {
 
 
 describe( 'Test observable/debounceObserver', () => {
-    const output = [] as number[];
-    const tti = [] as number[];
+    const output = [] as any[];
     const mockObservable = createMockObservable();
-    const mockObserver = createMockObserver();
+
+    const countObserver = createCountObserver();
     const ttiObserver = createTtiObserver();
-    const debounceObserver = createDebounceObserver( ()=>{
-        output.push( mockObserver.getMetrics() );
-        tti.push( ttiObserver.getMetrics() );
-        // do reset here for next cycle
-        mockObserver.reset();
+    const debounceObserver = createDebounceObserver( () => {
+        // debounceObserver.getMetrics() --> getMetrics for all member inside?
+        // output and tti in the real case it will be one place
+        output.push( {
+            count: countObserver.getMetrics(),
+            tti: ttiObserver.getMetrics()
+        } );
+        // do reset here for next cycle. Or reset in next cycle?
+        countObserver.reset();
         ttiObserver.reset();
         // debounceObserver.reset() --> reset to IDLE?
     } );
 
     beforeEach( () => {
+        // different observer might subscribe to different observable
+        // but the debounceObserver logic will be shared
         mockObservable.subscribe( debounceObserver );
-        mockObservable.subscribe( mockObserver );
+        mockObservable.subscribe( countObserver );
         mockObservable.subscribe( ttiObserver );
     } );
 
     afterEach( () => {
-        output.length = 0;
-        tti.length = 0;
+        // output.length = 0;
+        output.splice( 0, output.length );
         mockObservable.unsubscribe( debounceObserver );
-        mockObservable.unsubscribe( mockObserver );
+        mockObservable.unsubscribe( countObserver );
         mockObservable.unsubscribe( ttiObserver );
     } );
 
@@ -74,11 +93,13 @@ describe( 'Test observable/debounceObserver', () => {
 
         await wait( BUSY_INTERVAL );
 
+        expect( output.length ).toEqual( 1 );
+        expect( output[0].tti ).toBeGreaterThanOrEqual( 0 );
+        expect( output[0].tti ).toBeLessThanOrEqual( TOLERANCE );
+
+        // observer will be reset after getMetrics
+        expect( countObserver.getMetrics() ).toEqual( 0 );
         expect( debounceObserver.getState() ).toEqual( STATE.DONE );
-        expect( mockObserver.getMetrics() ).toEqual( 0 );
-        expect( output ).toEqual( [ 1 ] );
-        expect( tti[0] ).toBeGreaterThanOrEqual( 0 );
-        expect( tti[0] ).toBeLessThanOrEqual( TOLERANCE );
     } );
 
     it( 'Verify debounce observer for two cycle', async() => {
@@ -96,12 +117,16 @@ describe( 'Test observable/debounceObserver', () => {
         mockObservable.mockDone();
         await wait( BUSY_INTERVAL );
 
+        expect( output.length ).toEqual( 2 );
+        expect( output[0].tti ).toBeGreaterThanOrEqual( 0 );
+        expect( output[0].tti ).toBeLessThanOrEqual( TOLERANCE );
+        expect( output[0].count ).toEqual( 1 );
+        expect( output[1].tti ).toBeGreaterThanOrEqual( 0 + BUSY_INTERVAL / 2 );
+        expect( output[1].tti ).toBeLessThanOrEqual( TOLERANCE + BUSY_INTERVAL / 2 );
+        expect( output[1].count ).toEqual( 2 );
+
+        // observer will be reset after getMetrics
+        expect( countObserver.getMetrics() ).toEqual( 0 );
         expect( debounceObserver.getState() ).toEqual( STATE.DONE );
-        expect( mockObserver.getMetrics() ).toEqual( 0 );
-        expect( output ).toEqual( [ 1, 2 ] );
-        expect( tti[0] ).toBeGreaterThanOrEqual( 0 );
-        expect( tti[0] ).toBeLessThanOrEqual( TOLERANCE );
-        expect( tti[1] ).toBeGreaterThanOrEqual( 0 + BUSY_INTERVAL / 2 );
-        expect( tti[1] ).toBeLessThanOrEqual( TOLERANCE + BUSY_INTERVAL / 2 );
     } );
 } );

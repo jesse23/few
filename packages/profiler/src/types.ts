@@ -11,12 +11,29 @@ export interface Props {
 }
 
 export interface Observer {
+    /**
+     * callback for start signal
+     */
     onStart: () => void;
+    /**
+     * callback for done signal
+     */
     onDone: ( content?: Props ) => void;
     /*
     onComplete: () => void;
     onTimeout: () => void;
     */
+}
+
+export interface PerfObserver extends Observer {
+    /**
+     * call back to get the profile at any moment?
+     */
+    getMetrics: () => any;
+    /**
+     * reset the internal profiler?
+     */
+    reset: () => void;
 }
 
 /**
