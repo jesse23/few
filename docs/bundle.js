@@ -82,7 +82,6 @@
    * @returns path from root
    */
 
-
   const getPathFromRoot = href => {
     return (href || loc.href).replace(RE_ORIGIN, '');
   };
@@ -25284,7 +25283,11 @@
     leave: () => {
       app.unmount(entryElem);
     }
-  });
+  }); // set current base
+
+  const baseElem = document.createElement('base');
+  baseElem.setAttribute('href', getBaseURL());
+  document.head.appendChild(baseElem);
 
 }());
 //# sourceMappingURL=bundle.js.map

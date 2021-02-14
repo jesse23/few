@@ -85,7 +85,7 @@ function DEFAULT_PARSER( path ) {
  * @returns Base URL for the current application's root 'document' without any query or location attributes
  *          and (if otherwise valid) with a trailing '/' assured.
  */
-const getBaseURL: { (): string; _baseURL?: string } = () => {
+export const getBaseURL: { (): string; _baseURL?: string } = () => {
     if ( !getBaseURL._baseURL ) {
         // strip 'index.html' from end of pathname if present
         const location = window.location;

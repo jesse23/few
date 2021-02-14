@@ -62,3 +62,8 @@ route.register( {
         app.unmount( entryElem );
     }
 } );
+
+// set current base
+const baseElem = document.createElement( 'base' );
+baseElem.setAttribute( 'href', route.getBaseURL() );
+document.head.appendChild( baseElem );
