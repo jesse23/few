@@ -53,7 +53,7 @@ const useInit = ( fn: Function, initialized = true ): void => {
  * @param fn initialization function
  * @returns Store object
  */
-const useStore = ( fn: InitFn ): Store => {
+const useStore: UseStoreFn = fn => {
     const lastState = useRef( null );
 
     // to prevent reducer called twice, per: https://github.com/facebook/react/issues/16295
