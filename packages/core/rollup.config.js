@@ -59,6 +59,8 @@ import serve from 'rollup-plugin-serve';
 import { terser } from 'rollup-plugin-terser';
 import postcss from 'rollup-plugin-postcss';
 
+const contentBase = '../../docs';
+
 // `npm run build` -> `production` is true
 // `npm run dev` -> `production` is false
 const production = !process.env.ROLLUP_WATCH;
@@ -68,7 +70,7 @@ const extensions = [ '.js', '.jsx', '.ts', '.tsx' ];
 export default {
     input: 'src/main.ts',
     output: {
-        file: '../../docs/bundle.js',
+        file: `${contentBase}/bundle.js`,
         format: 'iife', // immediately-invoked function expression — suitable for <script> tags
         sourcemap: true
     },
@@ -138,7 +140,7 @@ export default {
         } ),
         production && terser(), // minify, but only in production
         !production && serve( {
-            contentBase: 'public',
+            contentBase,
             host: '0.0.0.0',
             port: 8080
         } )
