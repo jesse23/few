@@ -68,7 +68,7 @@ const extensions = [ '.js', '.jsx', '.ts', '.tsx' ];
 export default {
     input: 'src/main.ts',
     output: {
-        file: 'public/bundle.js',
+        file: '../../docs/bundle.js',
         format: 'iife', // immediately-invoked function expression — suitable for <script> tags
         sourcemap: true
     },
