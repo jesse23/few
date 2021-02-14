@@ -58,6 +58,7 @@ import alias from '@rollup/plugin-alias';
 import serve from 'rollup-plugin-serve';
 import { terser } from 'rollup-plugin-terser';
 import postcss from 'rollup-plugin-postcss';
+import css from 'rollup-plugin-import-css';
 
 const contentBase = '../../docs';
 
@@ -83,7 +84,8 @@ export default {
         } ),
         postcss( {
             extract: false,
-            modules: true,
+            // disable it for now
+            // modules: true,
             use: [ 'sass' ]
         } ),
         resolve( {
