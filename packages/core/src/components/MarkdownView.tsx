@@ -19,7 +19,7 @@ const MarkdownComponent = defineComponent<MarkdownOptions>( {
     name: 'MarkdownView',
     init: () => null,
     actions: {
-        createDomComponent: async( { path, ref, value } ): Promise<void> => {
+        createDomComponent: async( { path, ref } ): Promise<void> => {
             const content = await ( await fetch( path ) ).text();
             ref.el.innerHTML = marked( content );
         }
