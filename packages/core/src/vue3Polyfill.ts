@@ -204,7 +204,7 @@ export const createApp: CreateAppFunction = component => {
     const vueApp = createVueApp( isComponent( component ) ? h.createComponent( component ) : component );
     const app: App = {
         mount: ( elem: HTMLElement ) => ( ( vueApp.mount( elem ), app ) ),
-        unmount: ( elem: HTMLElement ) => ( ( vueApp.unmount( elem ), app ) )
+        unmount: ( _: HTMLElement ) => ( ( vueApp.unmount(), app ) )
     };
     return app;
 };

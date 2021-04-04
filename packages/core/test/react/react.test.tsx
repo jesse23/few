@@ -150,7 +150,6 @@ const MemoWidget = memo( ( props: { value: string; obj: { [key: string]: string 
 
     return <div>{props.value as string}</div>;
 } );
-MemoWidget.displayName = 'MemoWidget';
 
 const MemoContainer = (): JSX.Element => {
     const [ state, setState ] = useState( {
@@ -162,7 +161,10 @@ const MemoContainer = (): JSX.Element => {
 
     return (
         <div>
-            <MemoWidget value={state.value} obj={state.obj} />
+            {
+                // not sure why jsx has typing side effect to MemoWidget
+                h( MemoWidget, { value: state.value, obj: state.obj } )
+            }
             <button id='changeValue' onClick={(): void => {
                 setState( { ...state, value: 'value1' } );
             }}>changeValue</button>

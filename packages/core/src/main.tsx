@@ -1,9 +1,8 @@
 /* eslint-env es6 */
 
-import type { App, CreateAppFunction } from '@/types';
+import type { App } from '@/types';
 import * as route from './route';
 import { h } from './vDom';
-// import Example from '@/examples/XComponentExample';
 import Example from '@/components/MarkdownView';
 import { GlobalFrame } from '@/site/GlobalFrame';
 
@@ -39,7 +38,7 @@ const load = Object.assign( () => {
      console.log( 'Current APP:', load.currFramework );
 }, {
     currFramework: 'react' as ( 'react' | 'vue3' ),
-    app: null
+    app: null as App
 } );
 
 load();

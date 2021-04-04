@@ -166,7 +166,8 @@ const h: VDom = {
             }
             return createElement( type._compiled.react, props, ...children );
         }
-        return createElement( type, props, ...children );
+        // unknown type conflict after update to react 17 + vue3.0.11
+        return createElement( type, props, ...children ) as any;
     },
     createComponent: component => Object.assign( ( props: Props ): JSX.Element => {
         // async init
