@@ -50,6 +50,12 @@ const h: VDom = {
             delete props.onChange;
         }
 
+        // className
+        if ( props && props.className ) {
+            props.class = props.className;
+            delete props.className;
+        }
+
         // [Vue warn]: Non-function value encountered for default slot. Prefer function slots for better performance.
         // set children to null if children === []
         let children = ( childArr.length > 0 ? childArr : null ) as VNodeArrayChildren;

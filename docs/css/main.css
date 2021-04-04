@@ -1,0 +1,131 @@
+.navigation {
+    background: #f4f5f6;
+    border-bottom: .1rem solid #d1d1d1;
+    display: flex;
+    flex-direction: column;
+    height: 5.2rem;
+    left: 0;
+    max-width: 100%;
+    /*position: fixed;*/
+    right: 0;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+}
+
+.navigation .container {
+    padding-bottom: 0;
+    padding-top: 0;
+    max-width: unset;
+}
+
+.main {
+    padding: 10px;
+}
+
+/*
+.wrapper .container {
+    max-width: 80rem;
+}
+*/
+
+.frame-type {
+    position: fixed;
+    right: 100px;
+    top: 0px;
+    display: flex;
+
+}
+
+.frame-type>li {
+    list-style: none;
+    margin:10px;
+}
+
+.octocat {
+    border: 0;
+    color: #f4f5f6;
+    fill: #24292e;
+    height: 5.2rem;
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 5.2rem;
+    z-index: 1;
+}
+
+.octocat .octocat-arm, .octocat .octocat-body {
+    fill: #f4f5f6;
+}
+
+.button, button, input[type='button'], input[type='reset'], input[type='submit'] {
+    background-color: #24292e;
+    border: 0.1rem solid #24292e;
+}
+
+a {
+    color: #0366d6;
+    text-decoration: none;
+    background-color: initial;
+}
+
+::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #aaaaaa;
+}
+
+/* application specific */
+.few-sample-app {
+    position: fixed;
+    width: 100%;
+    height: calc(100% - 5.2rem);
+}
+
+.few-sample-app-frame {
+    height: 100%;
+    padding-right: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    max-width: unset;
+}
+
+.few-sample-app-main-row {
+    width: 100%;
+    height: inherit;
+    margin-left: unset;
+}
+
+.few-sample-app-content {
+    overflow: auto;
+    width: 100%;
+}
+
+.few-sample-app-block-break {
+    margin-top: 4rem;
+    padding-top: 1.2rem;
+    border-top: 1px #eeeeee solid;
+}
+
+.few-sample-app-vertical-splitter {
+    -webkit-flex: 0 0 8px;
+    flex: 0 0 8px;
+    position: relative;
+    touch-action: none;
+    background-color: transparent;
+    margin-left: 8px;
+    border-left: 1px #eeeeee solid;
+}
+
+.few-sample-app-vertical-splitter:hover {
+    border-left: 2px #9b4dca solid;
+    cursor: pointer;
+}
+
+.few-sample-app-md-align-polyfill {
+    width: 100%;
+    height: 2em;
+}

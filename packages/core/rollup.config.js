@@ -69,7 +69,7 @@ const production = !process.env.ROLLUP_WATCH;
 const extensions = [ '.js', '.jsx', '.ts', '.tsx' ];
 
 export default {
-    input: 'src/main.ts',
+    input: 'src/main.tsx',
     output: {
         file: `${contentBase}/bundle.js`,
         format: 'iife', // immediately-invoked function expression — suitable for <script> tags
@@ -138,7 +138,10 @@ export default {
         } ),
         // https://github.com/rollup/rollup/issues/487
         replace( {
-            'process.env.NODE_ENV': JSON.stringify( production ? 'production' : 'development' )
+            values: {
+                'process.env.NODE_ENV': JSON.stringify( production ? 'production' : 'development' )
+            },
+            preventAssignment: true
         } ),
         production && terser(), // minify, but only in production
         !production && serve( {
