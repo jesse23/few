@@ -1,0 +1,33 @@
+{
+  "name": "@few/server",
+  "version": "1.0.0",
+  "description": "> TODO: description",
+  "author": "jesse23 <vijcp@outlook.com>",
+  "homepage": "https://github.com/jesse23/few#readme",
+  "license": "ISC",
+  "main": "lib/server.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jesse23/few.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1",
+    "build": "tsc -w",
+    "dev": "nodemon out/server.js",
+    "start": "node out/server.js" 
+  },
+  "bugs": {
+    "url": "https://github.com/jesse23/few/issues"
+  },
+  "dependencies": {
+    "fastify": "^3.22.1",
+    "typescript": "^4.4.4"
+  }
+}
